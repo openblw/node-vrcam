@@ -49,12 +49,15 @@ int convert2equirectangular(cv::Mat &src, cv::Mat &dst) {
 			int x = r * cos(theta) + polar_x[0];
 			int y = r * sin(theta) + polar_y[0];
 			if (x < 0 || x >= src.cols / 2 || y < 0 || y >= src.rows) {
-				continue;
+				dst_line_head[3 * j + 0] = 0;
+				dst_line_head[3 * j + 1] = 0;
+				dst_line_head[3 * j + 2] = 0;
+			} else {
+				uint8_t *src_line_head = src.data + src.step * y;
+				dst_line_head[3 * j + 0] = src_line_head[3 * x + 0];
+				dst_line_head[3 * j + 1] = src_line_head[3 * x + 1];
+				dst_line_head[3 * j + 2] = src_line_head[3 * x + 2];
 			}
-			uint8_t *src_line_head = src.data + src.step * y;
-			dst_line_head[3 * j + 0] = src_line_head[3 * x + 0];
-			dst_line_head[3 * j + 1] = src_line_head[3 * x + 1];
-			dst_line_head[3 * j + 2] = src_line_head[3 * x + 2];
 		}
 	}
 	for (i = 0; i < dst.rows / 2; i++) {
@@ -66,12 +69,15 @@ int convert2equirectangular(cv::Mat &src, cv::Mat &dst) {
 			int x = r * cos(theta) + polar_x[1];
 			int y = r * sin(theta) + polar_y[1];
 			if (x < src.cols / 2 || x >= src.cols || y < 0 || y >= src.rows) {
-				continue;
+				dst_line_head[3 * j + 0] = 0;
+				dst_line_head[3 * j + 1] = 0;
+				dst_line_head[3 * j + 2] = 0;
+			} else {
+				uint8_t *src_line_head = src.data + src.step * y;
+				dst_line_head[3 * j + 0] = src_line_head[3 * x + 0];
+				dst_line_head[3 * j + 1] = src_line_head[3 * x + 1];
+				dst_line_head[3 * j + 2] = src_line_head[3 * x + 2];
 			}
-			uint8_t *src_line_head = src.data + src.step * y;
-			dst_line_head[3 * j + 0] = src_line_head[3 * x + 0];
-			dst_line_head[3 * j + 1] = src_line_head[3 * x + 1];
-			dst_line_head[3 * j + 2] = src_line_head[3 * x + 2];
 		}
 	}
 	return 0;
@@ -90,7 +96,7 @@ int SaveJpegAsEquirectangular(int width, int height, int stride,
 		convert2equirectangular(raw_image, vr_image);
 
 		OmxCvJpeg encoder = OmxCvJpeg(EQUIRECTANGULAR_WIDTH,
-				EQUIRECTANGULAR_HEIGHT);
+		EQUIRECTANGULAR_HEIGHT);
 
 		if (encoder.Encode(out_filename, vr_image)) {
 		} else {
