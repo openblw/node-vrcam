@@ -333,7 +333,7 @@ v8::Handle<v8::Value> Camera::ToJpegAsEquirectangular(const v8::Arguments& args)
 	v8::HandleScope scope;
 	auto thisObj = args.This();
 	auto camera = node::ObjectWrap::Unwrap < Camera > (thisObj)->camera;
-	::ToJpegAsEquirectangular(camera->width, camera->height, camera->width * 3, camera->head.start, "/tmp/capture.jpeg");
+	SaveJpegAsEquirectangular(camera->width, camera->height, camera->width * 3, camera->head.start, "/tmp/capture.jpeg");
 	return scope.Close(thisObj);
 }
 

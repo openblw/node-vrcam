@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-int ToJpegAsEquirectangular(int width, int height, int stride,
+int SaveJpegAsEquirectangular(int width, int height, int stride,
 		const uint8_t *imagedata, const char *out_filename);
 
 #ifdef __cplusplus
