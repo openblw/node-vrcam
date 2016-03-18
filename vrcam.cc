@@ -80,7 +80,7 @@ int convert2equirectangular(cv::Mat &src, cv::Mat &dst) {
 int SaveJpegAsEquirectangular(int width, int height, int stride,
 		const unsigned char *imagedata, const char *out_filename) {
 
-	cv::Mat raw_image(width, height, CV_8UC(stride / width));
+	cv::Mat raw_image(height, width, CV_8UC(stride / width));
 	cv::Mat vr_image(EQUIRECTANGULAR_HEIGHT, EQUIRECTANGULAR_WIDTH, CV_8UC(3));
 
 	memcpy(raw_image.data, imagedata, stride * height);
