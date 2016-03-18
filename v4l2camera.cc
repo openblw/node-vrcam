@@ -26,6 +26,7 @@ private:
 	static v8::Handle<v8::Value> Capture(const v8::Arguments& args);
 	static v8::Handle<v8::Value> ToYUYV(const v8::Arguments& args);
 	static v8::Handle<v8::Value> ToRGB(const v8::Arguments& args);
+	static v8::Handle<v8::Value> ToJpegAsEquirectangular(const v8::Arguments& args);
 	static v8::Handle<v8::Value> ConfigGet(const v8::Arguments& args);
 	static v8::Handle<v8::Value> ConfigSet(const v8::Arguments& args);
 	static v8::Handle<v8::Value> ControlGet(const v8::Arguments& args);
@@ -420,6 +421,7 @@ void Camera::Init(v8::Handle<v8::Object> exports) {
 	setMethod(proto, "capture", Capture);
 	setMethod(proto, "toYUYV", ToYUYV);
 	setMethod(proto, "toRGB", ToRGB);
+	setMethod(proto, "toJpegAsEquirectangular", ToJpegAsEquirectangular);
 	setMethod(proto, "configGet", ConfigGet);
 	setMethod(proto, "configSet", ConfigSet);
 	setMethod(proto, "controlGet", ControlGet);
