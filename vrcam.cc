@@ -48,7 +48,7 @@ int convert2equirectangular(cv::Mat &src, cv::Mat &dst) {
 			double theta = -M_PI * (2 * (double) j / dst.cols - 1);
 			int x = r * cos(theta) + polar_x[0];
 			int y = r * sin(theta) + polar_y[0];
-			if (x < 0 || x >= src.cols / 2 || y < 0 || y >= src.rows) {
+			if (x < 0 || x >= src.cols / 2 || y < 0 || y >= src.rows || i > dst.rows / 2 - 5) {
 				memset(&dst_line_head[3 * j], 0, 3);
 			} else {
 				uint8_t *src_line_head = src.data + src.step * y;
@@ -64,7 +64,7 @@ int convert2equirectangular(cv::Mat &src, cv::Mat &dst) {
 			double theta = M_PI * (2 * (double) j / dst.cols - 1) + M_PI / 2;
 			int x = r * cos(theta) + polar_x[1];
 			int y = r * sin(theta) + polar_y[1];
-			if (x < src.cols / 2 || x >= src.cols || y < 0 || y >= src.rows) {
+			if (x < src.cols / 2 || x >= src.cols || y < 0 || y >= src.rows || i > dst.rows / 2 - 5) {
 				memset(&dst_line_head[3 * j], 0, 3);
 			} else {
 				uint8_t *src_line_head = src.data + src.step * y;
