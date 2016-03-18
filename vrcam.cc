@@ -78,25 +78,5 @@ int convert2equirectangular(cv::Mat &src, cv::Mat &dst) {
 
 int SaveJpegAsEquirectangular(int width, int height, int stride,
 		const uint8_t *imagedata, const char *out_filename) {
-
-	cv::Mat raw_image(width, height, CV_8UC(stride / width));
-	cv::Mat vr_image(EQUIRECTANGULAR_HEIGHT, EQUIRECTANGULAR_WIDTH, CV_8UC(3));
-
-	memcpy(raw_image.data, imagedata, stride * height);
-
-	if (out_filename != NULL) {
-
-		convert2equirectangular(raw_image, vr_image);
-
-		OmxCvJpeg *j = new OmxCvJpeg(EQUIRECTANGULAR_WIDTH,
-		EQUIRECTANGULAR_HEIGHT);
-
-		if (j->Encode(out_filename, vr_image)) {
-		} else {
-			perror("error on jpeg encode");
-			return -1;
-		}
-	}
-
 	return 0;
 }

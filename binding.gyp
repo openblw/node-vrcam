@@ -6,7 +6,7 @@
     "cflags_c": ["-std=c11", "-Wno-unused-parameter"], 
     "cflags_cc": ["-std=c++11"],
     'include_dirs': [],
-	'libraries': ["-lomxcv"]
+	'libraries': ["-lomxcv", "-L/home/pi/git/omxcv/"]
   }]
 }
 
