@@ -8,7 +8,7 @@
     'include_dirs': [],
 	'libraries': ["-L/home/pi/git/omxcv/", "-L/opt/vc/lib", "-L/opt/vc/src/hello_pi/libs/ilclient",
 	              "-Wl,-Bdynamic", "-lbcm_host", "-lilclient", "-lopenmaxil",
-	              "-Wl,-Bstatic", "-lopencv_core", "libomxcv"]
+	              "-Wl,-Bstatic", "-lopencv_core", "-lomxcv"]
   }]
 }
 
