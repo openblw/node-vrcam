@@ -39,47 +39,39 @@ int polar_x[2] = { 640 / 2, 640 + 640 / 2 };
 int polar_y[2] = { 640 / 2, 640 / 2 };
 int polar_r[2] = { 660 / 2, 660 / 2 };
 int convert2equirectangular(cv::Mat &src, cv::Mat &dst) {
-//	int i, j;
-//	for (i = 0; i < dst.rows / 2; i++) {
-//		uint8_t *dst_line_head = dst.data + dst.step * i;
-//		double phi_rate = 2 * (double) i / dst.rows;
-//		int r = phi_rate * polar_r[0];
-//		for (j = 0; j < dst.cols; j++) {
-//			double theta = -M_PI * (2 * (double) j / dst.cols - 1);
-//			int x = r * cos(theta) + polar_x[0];
-//			int y = r * sin(theta) + polar_y[0];
-//			if (x < 0 || x >= src.cols / 2 || y < 0 || y >= src.rows) {
-//				dst_line_head[3 * j + 0] = 0;
-//				dst_line_head[3 * j + 1] = 0;
-//				dst_line_head[3 * j + 2] = 0;
-//			} else {
-//				uint8_t *src_line_head = src.data + src.step * y;
-//				dst_line_head[3 * j + 0] = src_line_head[3 * x + 0];
-//				dst_line_head[3 * j + 1] = src_line_head[3 * x + 1];
-//				dst_line_head[3 * j + 2] = src_line_head[3 * x + 2];
-//			}
-//		}
-//	}
-//	for (i = 0; i < dst.rows / 2; i++) {
-//		uint8_t *dst_line_head = dst.data + dst.step * (dst.rows - 1 - i);
-//		double phi_rate = 2 * (double) i / dst.rows;
-//		int r = phi_rate * polar_r[0];
-//		for (j = 0; j < dst.cols; j++) {
-//			double theta = M_PI * (2 * (double) j / dst.cols - 1) + M_PI / 2;
-//			int x = r * cos(theta) + polar_x[1];
-//			int y = r * sin(theta) + polar_y[1];
-//			if (x < src.cols / 2 || x >= src.cols || y < 0 || y >= src.rows) {
-//				dst_line_head[3 * j + 0] = 0;
-//				dst_line_head[3 * j + 1] = 0;
-//				dst_line_head[3 * j + 2] = 0;
-//			} else {
-//				uint8_t *src_line_head = src.data + src.step * y;
-//				dst_line_head[3 * j + 0] = src_line_head[3 * x + 0];
-//				dst_line_head[3 * j + 1] = src_line_head[3 * x + 1];
-//				dst_line_head[3 * j + 2] = src_line_head[3 * x + 2];
-//			}
-//		}
-//	}
+	int i, j;
+	for (i = 0; i < dst.rows / 2; i++) {
+		uint8_t *dst_line_head = dst.data + dst.step * i;
+		double phi_rate = 2 * (double) i / dst.rows;
+		int r = phi_rate * polar_r[0];
+		for (j = 0; j < dst.cols; j++) {
+			double theta = -M_PI * (2 * (double) j / dst.cols - 1);
+			int x = r * cos(theta) + polar_x[0];
+			int y = r * sin(theta) + polar_y[0];
+			if (x < 0 || x >= src.cols / 2 || y < 0 || y >= src.rows) {
+				memset(&dst_line_head[3 * j], 0, 3);
+			} else {
+				uint8_t *src_line_head = src.data + src.step * y;
+				memcpy(&dst_line_head[3 * j], &src_line_head[3 * x], 3);
+			}
+		}
+	}
+	for (i = 0; i < dst.rows / 2; i++) {
+		uint8_t *dst_line_head = dst.data + dst.step * (dst.rows - 1 - i);
+		double phi_rate = 2 * (double) i / dst.rows;
+		int r = phi_rate * polar_r[0];
+		for (j = 0; j < dst.cols; j++) {
+			double theta = M_PI * (2 * (double) j / dst.cols - 1) + M_PI / 2;
+			int x = r * cos(theta) + polar_x[1];
+			int y = r * sin(theta) + polar_y[1];
+			if (x < src.cols / 2 || x >= src.cols || y < 0 || y >= src.rows) {
+				memset(&dst_line_head[3 * j], 0, 3);
+			} else {
+				uint8_t *src_line_head = src.data + src.step * y;
+				memcpy(&dst_line_head[3 * j], &src_line_head[3 * x], 3);
+			}
+		}
+	}
 	return 0;
 }
 
