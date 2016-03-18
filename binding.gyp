@@ -7,8 +7,8 @@
     "cflags_cc": ["-std=c++11"],
     'include_dirs': [],
 	'libraries': ["-L/home/pi/git/omxcv/", "-L/opt/vc/lib", "-L/opt/vc/src/hello_pi/libs/ilclient",
-	              "-lbcm_host", "-lilclient", "-lopenmaxil",
-	              "libopencv_core.a", "libomxcv.a"]
+	              "-Wl,-Bdynamic", "-lbcm_host", "-lilclient", "-lopenmaxil",
+	              "-Wl,-Bstatic", "-lopencv_core", "libomxcv"]
   }]
 }
 
