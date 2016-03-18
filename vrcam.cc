@@ -3,6 +3,9 @@
  * @brief Simple testing application for omxcv.
  */
 #include "vrcam.h"
+
+extern "C" {
+
 #include "omxcv.h"
 #include <opencv2/opencv.hpp>
 #include <cstdio>
@@ -10,6 +13,8 @@
 #include <ctime>
 #include <chrono>
 #include <thread>
+
+}
 
 #define CAMERA_DEV   "/dev/video0"
 #define CAMERA_WIDTH  1280
