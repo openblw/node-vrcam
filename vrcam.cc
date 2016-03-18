@@ -1,4 +1,5 @@
 
+#include "vrcam.h"
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
