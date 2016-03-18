@@ -89,10 +89,10 @@ int SaveJpegAsEquirectangular(int width, int height, int stride,
 
 		convert2equirectangular(raw_image, vr_image);
 
-		OmxCvJpeg *j = new OmxCvJpeg(EQUIRECTANGULAR_WIDTH,
-		EQUIRECTANGULAR_HEIGHT);
+		OmxCvJpeg encoder = OmxCvJpeg(EQUIRECTANGULAR_WIDTH,
+				EQUIRECTANGULAR_HEIGHT);
 
-		if (j->Encode(out_filename, vr_image)) {
+		if (encoder.Encode(out_filename, vr_image)) {
 		} else {
 			perror("error on jpeg encode");
 			return -1;
