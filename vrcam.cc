@@ -4,6 +4,7 @@
  */
 #include "vrcam.h"
 #include "omxcv.h"
+#include "image_gpu.h"
 #include <opencv2/opencv.hpp>
 #include <cstdio>
 #include <cstdlib>
@@ -28,6 +29,8 @@ using std::chrono::microseconds;
 using std::chrono::milliseconds;
 using std::chrono::steady_clock;
 using std::chrono::duration_cast;
+
+using namespace picopter;
 
 //pre procedure difinition
 
@@ -77,6 +80,8 @@ int convert2equirectangular(cv::Mat &src, cv::Mat &dst) {
 
 OmxCvJpeg encoder = OmxCvJpeg(EQUIRECTANGULAR_WIDTH,
 EQUIRECTANGULAR_HEIGHT);
+GLThreshold t(EQUIRECTANGULAR_WIDTH, EQUIRECTANGULAR_HEIGHT);
+
 
 int SaveJpegAsEquirectangular(int width, int height, int stride,
 		const unsigned char *imagedata, const char *out_filename) {
@@ -88,7 +93,8 @@ int SaveJpegAsEquirectangular(int width, int height, int stride,
 
 	if (out_filename != NULL) {
 
-		convert2equirectangular(raw_image, vr_image);
+        t.Threshold(raw_image, vr_image);
+		//convert2equirectangular(raw_image, vr_image);
 
 		if (encoder.Encode(out_filename, vr_image)) {
 		} else {

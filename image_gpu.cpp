@@ -28,7 +28,7 @@ using std::chrono::duration_cast;
 
 using namespace picopter;
 
-GLThreshold::GLThreshold(Options *opts, int width, int height)
+GLThreshold::GLThreshold(Options *opts, int width, int height, int tex_width, int tex_height)
 : m_width(width)
 , m_height(height)
 , m_thresh_min{}
@@ -103,7 +103,7 @@ GLThreshold::GLThreshold(Options *opts, int width, int height)
 
     //Setup the shaders and texture buffer.
     m_program = new GLProgram("simplevertshader.glsl", "simplefragshader.glsl");
-    m_texture = new GLTexture(width, height, GL_RGB);
+    m_texture = new GLTexture(tex_width, tex_height, GL_RGB);
 }
 
 GLThreshold::GLThreshold(int width, int height)
@@ -121,7 +121,7 @@ void GLThreshold::Threshold(const cv::Mat &in, cv::Mat &out) {
     
     //Blank the display
     glBindFramebuffer(GL_FRAMEBUFFER, m_texture->GetFramebufferId());
-    glViewport(0, 0, m_texture->GetWidth(), m_texture->GetHeight());
+    glViewport(0, 0, m_width, m_height);
     check();
     glClear(GL_COLOR_BUFFER_BIT);
     check();
@@ -131,8 +131,8 @@ void GLThreshold::Threshold(const cv::Mat &in, cv::Mat &out) {
 
     //Load in the texture and thresholding parameters.
     glUniform1i(glGetUniformLocation(*m_program,"tex"), 0);
-    glUniform4f(glGetUniformLocation(*m_program, "threshLow"),0,167/255.0, 86/255.0,0);
-    glUniform4f(glGetUniformLocation(*m_program, "threshHigh"),255/255.0,255/255.0, 141/255.0,1);
+    //glUniform4f(glGetUniformLocation(*m_program, "threshLow"),0,167/255.0, 86/255.0,0);
+    //glUniform4f(glGetUniformLocation(*m_program, "threshHigh"),255/255.0,255/255.0, 141/255.0,1);
     check();
 
     glBindBuffer(GL_ARRAY_BUFFER, m_quad_buffer);   check();
