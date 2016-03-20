@@ -29,8 +29,8 @@ namespace picopter {
      */
     class GLThreshold {
             public:
-                GLThreshold(Options *opts, int width, int height);
-                GLThreshold(int width, int height);
+                GLThreshold(Options *opts, int width, int height, int tex_width, int tex_height);
+                GLThreshold(int width, int height, int tex_width, int tex_height);
                 virtual ~GLThreshold();
                 
                 void SetThresholds(ThresholdSet min, ThresholdSet max);

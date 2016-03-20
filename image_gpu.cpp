@@ -106,8 +106,8 @@ GLThreshold::GLThreshold(Options *opts, int width, int height, int tex_width, in
     m_texture = new GLTexture(tex_width, tex_height, GL_RGB);
 }
 
-GLThreshold::GLThreshold(int width, int height)
-: GLThreshold(NULL, width, height) {}
+GLThreshold::GLThreshold(int width, int height, int tex_width, int tex_height)
+: GLThreshold(NULL, width, height, tex_width, tex_height) {}
 
 GLThreshold::~GLThreshold() {
     eglDestroySurface(m_display, m_surface);
