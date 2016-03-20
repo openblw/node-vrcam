@@ -5,7 +5,7 @@
     "cflags": ["-Wall", "-Wextra", "-pedantic"],
     "cflags_c": ["-std=c11", "-Wno-unused-parameter"], 
     "cflags_cc": ["-std=c++11"],
-    'include_dirs': ["-I/opt/vc/include"],
+    'include_dirs': ["/opt/vc/include"],
 	'libraries': [
 					"-L/home/pi/git/omxcv/",
 					"-L/opt/vc/lib",
