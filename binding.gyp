@@ -1,11 +1,11 @@
 {
   "targets": [{
     "target_name": "v4l2camera", 
-    "sources": ["capture.c", "vrcam.cc", "v4l2camera.cc", "image_gpu.cpp"],
+    "sources": ["capture.c", "image_gpu.cpp", "vrcam.cc", "v4l2camera.cc"],
     "cflags": ["-Wall", "-Wextra", "-pedantic"],
     "cflags_c": ["-std=c11", "-Wno-unused-parameter"], 
     "cflags_cc": ["-std=c++11"],
-    'include_dirs': [],
+    'include_dirs': ["-I/opt/vc/include"],
 	'libraries': [
 					"-L/home/pi/git/omxcv/",
 					"-L/opt/vc/lib",
