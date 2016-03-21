@@ -54,7 +54,7 @@ int SaveJpegAsEquirectangular(int width, int height, int stride,
 
 	if (out_filename != NULL) {
 
-        transform.Transform(raw_image, vr_image);
+		transformer.Transform(raw_image, vr_image);
 
 		if (encoder.Encode(out_filename, vr_image)) {
 		} else {
