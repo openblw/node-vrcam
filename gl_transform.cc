@@ -3,8 +3,7 @@
  * @brief GPU processing image library
  */
 
-#include "image_gpu.h"
-#include "image_gpu_private.h"
+#include "gl_transform.h"
 #include <assert.h>
 #include <error.h>
 
@@ -26,13 +25,11 @@ using std::chrono::duration_cast;
 
 #define check() assert(glGetError() == 0)
 
-using namespace picopter;
+using namespace openblw;
 
-GLThreshold::GLThreshold(Options *opts, int width, int height, int tex_width, int tex_height)
+GLTransform::GLTransform(int width, int height, int tex_width, int tex_height)
 : m_width(width)
 , m_height(height)
-, m_thresh_min{}
-, m_thresh_max{}
 {
     EGLBoolean result;
     EGLint num_config;
@@ -104,49 +101,70 @@ GLThreshold::GLThreshold(Options *opts, int width, int height, int tex_width, in
     //Setup the shaders and texture buffer.
     m_program = new GLProgram("simplevertshader.glsl", "simplefragshader.glsl");
     m_texture = new GLTexture(tex_width, tex_height, GL_RGB);
+    m_texture_dst = new GLTexture(width, height, GL_RGB);
+
+    //Allocate the frame buffer
+    glGenFramebuffers(1, &m_framebuffer_id);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer_id);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture_dst->GetTextureId(), 0);
+    if (glGetError() != GL_NO_ERROR) {
+        throw std::invalid_argument("glFramebufferTexture2D failed. Could not allocate framebuffer.");
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER,0);
 }
 
-GLThreshold::GLThreshold(int width, int height, int tex_width, int tex_height)
-: GLThreshold(NULL, width, height, tex_width, tex_height) {}
-
-GLThreshold::~GLThreshold() {
+GLTransform::~GLTransform() {
+    glDeleteFramebuffers(1, &m_framebuffer_id);
     eglDestroySurface(m_display, m_surface);
     delete m_program;
     delete m_texture;
+    delete m_texture_dst;
 }
 
-void GLThreshold::Threshold(const cv::Mat &in, cv::Mat &out) {
+void GLTransform::GetRenderedData(void *buffer) {
+    glBindFramebuffer(GL_FRAMEBUFFER,m_framebuffer_id);
+    glReadPixels(0, 0, m_width, m_height, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+    glBindFramebuffer(GL_FRAMEBUFFER,0);
+}
+
+void GLTransform::Transform(const cv::Mat &in, cv::Mat &out) {
     //Load the data into a texture.
     m_texture->SetData(in.data);
     
     //Blank the display
-    glBindFramebuffer(GL_FRAMEBUFFER, m_texture->GetFramebufferId());
+    glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer_id);
     glViewport(0, 0, m_width, m_height);
     check();
     glClear(GL_COLOR_BUFFER_BIT);
     check();
     
-    glUseProgram(*m_program);
+    glUseProgram(m_program->GetId());
     check();
 
     //Load in the texture and thresholding parameters.
-    glUniform1i(glGetUniformLocation(*m_program,"tex"), 0);
-    //glUniform4f(glGetUniformLocation(*m_program, "threshLow"),0,167/255.0, 86/255.0,0);
-    //glUniform4f(glGetUniformLocation(*m_program, "threshHigh"),255/255.0,255/255.0, 141/255.0,1);
+    glUniform1i(glGetUniformLocation(m_program->GetId(),"tex"), 0);
+    //glUniform4f(glGetUniformLocation(m_program->GetId(), "threshLow"),0,167/255.0, 86/255.0,0);
+    //glUniform4f(glGetUniformLocation(m_program->GetId(), "threshHigh"),255/255.0,255/255.0, 141/255.0,1);
     check();
 
     glBindBuffer(GL_ARRAY_BUFFER, m_quad_buffer);   check();
-    glBindTexture(GL_TEXTURE_2D, *m_texture);  check();
+    //glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_texture->GetTextureId());  check();
+    //glActiveTexture(GL_TEXTURE1);
+    //glBindTexture(GL_TEXTURE_2D, m_texture_dst->GetTextureId());  check();
 
     //Initialize the vertex position attribute from the vertex shader
-    GLuint loc = glGetAttribLocation(*m_program, "vPosition");
+    GLuint loc = glGetAttribLocation(m_program->GetId(), "vPosition");
     glVertexAttribPointer(loc, 4, GL_FLOAT, GL_FALSE, 0, 0);  check();
     glEnableVertexAttribArray(loc); check();
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); check();
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    //glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, 0);
+    //glActiveTexture(GL_TEXTURE1);
+    //glBindTexture(GL_TEXTURE_2D, 0);
     glBindFramebuffer(GL_FRAMEBUFFER,0);
     
     //glFinish(); check();
@@ -157,12 +175,17 @@ void GLThreshold::Threshold(const cv::Mat &in, cv::Mat &out) {
     //check();
 
     //glFinish();
-    
-    /*void *out = malloc(3 * m_texture->GetWidth() * m_texture->GetHeight());
-    m_texture->GetRenderedData(out);
-    FILE *fp = fopen("TEMP.RGB", "wb");
-    fwrite(out, 3 * m_texture->GetWidth() * m_texture->GetHeight(), 1, fp);
-    fclose(fp);*/
+    {
+    FILE *fp = fopen("/tmp/in.rgb", "wb");
+    fwrite(in.data, 3 * 1280 * 480, 1, fp);
+    fclose(fp);
+    }
+    {
+    this->GetRenderedData(out.data);
+    FILE *fp = fopen("/tmp/out.rgb", "wb");
+    fwrite(out.data, 3 * m_width * m_height, 1, fp);
+    fclose(fp);
+    }
 }
 
 GLProgram::GLProgram(const char *vertex_file, const char *fragment_file) {
@@ -270,24 +293,16 @@ GLTexture::GLTexture(GLsizei width, GLsizei height, GLint type)
     if (glGetError() != GL_NO_ERROR) {
         throw std::invalid_argument("glTexImage2D failed. Could not allocate texture buffer.");
     }
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_2D_WRAP_S, GL_CLAMP_TO_EDGE);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_2D_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glBindTexture(GL_TEXTURE_2D, 0);
-
-    //Allocate the frame buffer
-    glGenFramebuffers(1, &m_framebuffer_id);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer_id);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture_id, 0);
-    if (glGetError() != GL_NO_ERROR) {
-        throw std::invalid_argument("glFramebufferTexture2D failed. Could not allocate framebuffer.");
-    }
-    glBindFramebuffer(GL_FRAMEBUFFER,0);
 }
 
 GLTexture::~GLTexture() {
-    glDeleteFramebuffers(1, &m_framebuffer_id);
     glDeleteTextures(1, &m_texture_id);
 }
 
@@ -305,16 +320,6 @@ void GLTexture::SetData(void *data) {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void GLTexture::GetRenderedData(void *buffer) {
-    glBindFramebuffer(GL_FRAMEBUFFER,m_framebuffer_id);
-    glReadPixels(0, 0, m_width, m_height, m_type, GL_UNSIGNED_BYTE, buffer);
-    glBindFramebuffer(GL_FRAMEBUFFER,0);
-}
-
 GLuint GLTexture::GetTextureId() {
     return m_texture_id;
-}
-
-GLuint GLTexture::GetFramebufferId() {
-    return m_framebuffer_id;
 }
