@@ -175,17 +175,17 @@ void GLTransform::Transform(const cv::Mat &in, cv::Mat &out) {
     //check();
 
     //glFinish();
-    {
-    FILE *fp = fopen("/tmp/in.rgb", "wb");
-    fwrite(in.data, 3 * 1280 * 480, 1, fp);
-    fclose(fp);
-    }
-    {
-    this->GetRenderedData(out.data);
-    FILE *fp = fopen("/tmp/out.rgb", "wb");
-    fwrite(out.data, 3 * m_width * m_height, 1, fp);
-    fclose(fp);
-    }
+//    {
+//    FILE *fp = fopen("/tmp/in.rgb", "wb");
+//    fwrite(in.data, 3 * 1280 * 480, 1, fp);
+//    fclose(fp);
+//    }
+//    {
+//    this->GetRenderedData(out.data);
+//    FILE *fp = fopen("/tmp/out.rgb", "wb");
+//    fwrite(out.data, 3 * m_width * m_height, 1, fp);
+//    fclose(fp);
+//    }
 }
 
 GLProgram::GLProgram(const char *vertex_file, const char *fragment_file) {
