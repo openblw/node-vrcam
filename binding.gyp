@@ -1,7 +1,7 @@
 {
   "targets": [{
     "target_name": "v4l2camera", 
-    "sources": ["capture.c", "image_gpu.cc", "vrcam.cc", "v4l2camera.cc"],
+    "sources": ["capture.c", "gl_transform.cc", "vrcam.cc", "v4l2camera.cc"],
     "cflags": ["-Wall", "-Wextra", "-pedantic"],
     "cflags_c": ["-std=c11", "-Wno-unused-parameter"], 
     "cflags_cc": ["-std=c++11", "-fexceptions"],
