@@ -80,7 +80,7 @@ int convert2equirectangular(cv::Mat &src, cv::Mat &dst) {
 
 OmxCvJpeg encoder = OmxCvJpeg(EQUIRECTANGULAR_WIDTH,
 EQUIRECTANGULAR_HEIGHT);
-GLThreshold t(EQUIRECTANGULAR_WIDTH, EQUIRECTANGULAR_HEIGHT);
+GLThreshold t(EQUIRECTANGULAR_WIDTH, EQUIRECTANGULAR_HEIGHT, CAMERA_WIDTH, CAMERA_HEIGHT);
 
 
 int SaveJpegAsEquirectangular(int width, int height, int stride,
