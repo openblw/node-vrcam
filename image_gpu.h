@@ -35,6 +35,7 @@ namespace picopter {
                 
                 void SetThresholds(ThresholdSet min, ThresholdSet max);
                 void Threshold(const cv::Mat &in, cv::Mat &out);
+                void GetRenderedData(void *buffer);
             private:
                 int m_width, m_height;
                 ThresholdSet m_thresh_min, m_thresh_max;
@@ -44,6 +45,8 @@ namespace picopter {
                 EGLDisplay m_display;
                 EGLSurface m_surface;
                 GLuint m_quad_buffer;
+                GLuint m_framebuffer_id;
+                GLuint m_renderbuffer_id;
                 
                 /** Copy constructor (disabled) **/
                 GLThreshold(const GLThreshold &other);
