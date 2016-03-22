@@ -148,10 +148,7 @@ void GLTransform::Transform(const cv::Mat &in, cv::Mat &out) {
     check();
 
     glBindBuffer(GL_ARRAY_BUFFER, m_quad_buffer);   check();
-    //glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_texture->GetTextureId());  check();
-    //glActiveTexture(GL_TEXTURE1);
-    //glBindTexture(GL_TEXTURE_2D, m_texture_dst->GetTextureId());  check();
 
     //Initialize the vertex position attribute from the vertex shader
     GLuint loc = glGetAttribLocation(m_program->GetId(), "vPosition");
@@ -161,27 +158,25 @@ void GLTransform::Transform(const cv::Mat &in, cv::Mat &out) {
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); check();
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    //glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, 0);
-    //glActiveTexture(GL_TEXTURE1);
-    //glBindTexture(GL_TEXTURE_2D, 0);
     glBindFramebuffer(GL_FRAMEBUFFER,0);
     
-    //glFinish(); check();
-    //glFlush(); check();
+    glFinish(); check();
+    glFlush(); check();
 
     //RENDER
-    eglSwapBuffers(m_display, m_surface);
-    //check();
+    eglSwapBuffers(m_display, m_surface); check();
 
-    //glFinish();
+    glFinish();
+
+    this->GetRenderedData(out.data);
+
 //    {
 //    FILE *fp = fopen("/tmp/in.rgb", "wb");
 //    fwrite(in.data, 3 * 1280 * 480, 1, fp);
 //    fclose(fp);
 //    }
 //    {
-//    this->GetRenderedData(out.data);
 //    FILE *fp = fopen("/tmp/out.rgb", "wb");
 //    fwrite(out.data, 3 * m_width * m_height, 1, fp);
 //    fclose(fp);
