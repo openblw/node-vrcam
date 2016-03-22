@@ -2,14 +2,14 @@ varying vec2 tcoord;
 uniform sampler2D tex;
 uniform vec4 threshLow, threshHigh;
 
-const float M_2PI = 2.0*3.1415926535;
+const float M_PI = 3.1415926535;
 
 void main(void) 
 {
 	if(tcoord.y < 0.5)
 	{
 	    float r = tcoord.y;
-        float theta = M_2PI * tcoord.x;
+        float theta = 2.0 * M_PI * -tcoord.x + M_PI;
         float x = r * cos(theta) + 0.5;
         float y = r * sin(theta) + 0.5;
 
@@ -17,7 +17,7 @@ void main(void)
 	}
 	else{
 	    float r = 1.0 - tcoord.y;
-        float theta = M_2PI * tcoord.x;
+        float theta = 2.0 * M_PI * tcoord.x + M_PI / 2.0;
         float x = r * cos(theta) + 0.5;
         float y = r * sin(theta) + 0.5;
 
