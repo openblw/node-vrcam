@@ -23,6 +23,8 @@ private:
 	static v8::Handle<v8::Value> New(const v8::Arguments& args);
 	static v8::Handle<v8::Value> Start(const v8::Arguments& args);
 	static v8::Handle<v8::Value> Stop(const v8::Arguments& args);
+	static v8::Handle<v8::Value> StartRecord(const v8::Arguments& args);
+	static v8::Handle<v8::Value> StopRecord(const v8::Arguments& args);
 	static v8::Handle<v8::Value> Capture(const v8::Arguments& args);
 	static v8::Handle<v8::Value> ToYUYV(const v8::Arguments& args);
 	static v8::Handle<v8::Value> ToRGB(const v8::Arguments& args);
@@ -286,12 +288,29 @@ v8::Handle<v8::Value> Camera::Stop(const v8::Arguments& args) {
 	return Watch(args, StopCB);
 }
 
+v8::Handle<v8::Value> Camera::StartRecord(const v8::Arguments& args) {
+	v8::HandleScope scope;
+	auto thisObj = args.This();
+	auto camera = node::ObjectWrap::Unwrap < Camera > (thisObj)->camera;
+	StartRecord();
+	return scope.Close(thisObj);
+}
+
+v8::Handle<v8::Value> Camera::StopRecord(const v8::Arguments& args) {
+	v8::HandleScope scope;
+	auto thisObj = args.This();
+	auto camera = node::ObjectWrap::Unwrap < Camera > (thisObj)->camera;
+	StopRecord();
+	return scope.Close(thisObj);
+}
+
 void Camera::CaptureCB(uv_poll_t* handle, int /*status*/, int /*events*/) {
 	auto callCallback = [](CallbackData* data) -> void {
 		v8::HandleScope scope;
 		auto thisObj = v8::Local<v8::Object>::New(data->thisObj);
 		auto camera = node::ObjectWrap::Unwrap<Camera>(thisObj)->camera;
 		bool captured = camera_capture(camera);
+		AddFrame(camera->width, camera->height, camera->width * 3, camera->head.start);
 		v8::Local<v8::Value> argv[] = {
 			v8::Local<v8::Value>::New(v8::Boolean::New(captured)),
 		};
@@ -417,6 +436,8 @@ void Camera::Init(v8::Handle<v8::Object> exports) {
 	auto proto = clazz->PrototypeTemplate();
 	setMethod(proto, "start", Start);
 	setMethod(proto, "stop", Stop);
+	setMethod(proto, "startRecord", StartRecord);
+	setMethod(proto, "stopRecord", StopRecord);
 	setMethod(proto, "capture", Capture);
 	setMethod(proto, "toYUYV", ToYUYV);
 	setMethod(proto, "toRGB", ToRGB);

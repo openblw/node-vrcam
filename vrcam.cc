@@ -38,11 +38,37 @@ using namespace openblw;
 
 //global variables
 
-
 OmxCvJpeg encoder = OmxCvJpeg(EQUIRECTANGULAR_WIDTH,
 EQUIRECTANGULAR_HEIGHT);
-GLTransform transformer(EQUIRECTANGULAR_WIDTH, EQUIRECTANGULAR_HEIGHT, CAMERA_WIDTH, CAMERA_HEIGHT);
+GLTransform transformer(EQUIRECTANGULAR_WIDTH, EQUIRECTANGULAR_HEIGHT,
+		CAMERA_WIDTH, CAMERA_HEIGHT);
+OmxCv *recorder = NULL;
 
+int StartRecord() {
+	recorder = new OmxCv((const char*) "/tmp/movie.mov", EQUIRECTANGULAR_WIDTH,
+			EQUIRECTANGULAR_HEIGHT, 4000);
+	return 0;
+}
+
+int StartRecord() {
+	if(recorder == NULL) return -1;
+	delete recorder;
+	recorder = NULL;
+	return 0;
+}
+
+int AddFrame(int width, int height, int stride,
+		const unsigned char *imagedata) {
+	if(recorder == NULL) return -1;
+
+	cv::Mat raw_image(height, width, CV_8UC(stride / width));
+	cv::Mat vr_image(EQUIRECTANGULAR_HEIGHT, EQUIRECTANGULAR_WIDTH, CV_8UC(3));
+
+	memcpy(raw_image.data, imagedata, stride * height);
+
+	transformer.Transform(raw_image, vr_image);
+	recorder->Encode(image)
+}
 
 int SaveJpegAsEquirectangular(int width, int height, int stride,
 		const unsigned char *imagedata, const char *out_filename) {
