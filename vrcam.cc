@@ -45,7 +45,7 @@ GLTransform transformer(EQUIRECTANGULAR_WIDTH, EQUIRECTANGULAR_HEIGHT,
 OmxCv *recorder = NULL;
 
 int StartRecord() {
-	recorder = new OmxCv((const char*) "/tmp/movie.mp4", EQUIRECTANGULAR_WIDTH,
+	recorder = new OmxCv((const char*) "/tmp/movie.mov", EQUIRECTANGULAR_WIDTH,
 			EQUIRECTANGULAR_HEIGHT, 4000);
 	return 0;
 }
