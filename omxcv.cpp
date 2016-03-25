@@ -256,6 +256,17 @@ OmxCvImpl::OmxCvImpl(const char *name, int width, int height, int bitrate,
 		ret = OMX_SetParameter(ILC_GET_HANDLE(m_encoder_component),
 				OMX_IndexParamVideoProfileLevelCurrent, &profileLevel);
 
+		//I think this decreases the chance of NALUs being split across buffers.
+		/*
+		 OMX_CONFIG_BOOLEANTYPE frg = {0};
+		 frg.nSize = sizeof(OMX_CONFIG_BOOLEANTYPE);
+		 frg.nVersion.nVersion = OMX_VERSION;
+		 frg.bEnabled = OMX_TRUE;
+		 ret = OMX_SetParameter(ILC_GET_HANDLE(m_encoder_component),
+		 OMX_IndexConfigMinimiseFragmentation, &frg);
+		 CHECKED(ret != 0, "OMX_SetParameter failed for setting fragmentation minimisation.");
+		 */
+
 		CHECKED(ret != OMX_ErrorNone,
 				"OMX_SetParameter failed for setting encoder output format.");
 		//We want at most one NAL per output buffer that we receive.
@@ -289,17 +300,6 @@ OmxCvImpl::OmxCvImpl(const char *name, int width, int height, int bitrate,
 			OMX_IndexParamVideoBitrate, &bitrate_type);
 	CHECKED(ret != OMX_ErrorNone,
 			"OMX_SetParameter failed for setting encoder bitrate.");
-
-	//I think this decreases the chance of NALUs being split across buffers.
-	/*
-	 OMX_CONFIG_BOOLEANTYPE frg = {0};
-	 frg.nSize = sizeof(OMX_CONFIG_BOOLEANTYPE);
-	 frg.nVersion.nVersion = OMX_VERSION;
-	 frg.bEnabled = OMX_TRUE;
-	 ret = OMX_SetParameter(ILC_GET_HANDLE(m_encoder_component),
-	 OMX_IndexConfigMinimiseFragmentation, &frg);
-	 CHECKED(ret != 0, "OMX_SetParameter failed for setting fragmentation minimisation.");
-	 */
 
 	ret = ilclient_change_component_state(m_encoder_component, OMX_StateIdle);
 	CHECKED(ret != 0, "ILClient failed to change encoder to idle state.");
