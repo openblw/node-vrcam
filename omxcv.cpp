@@ -494,7 +494,8 @@ bool OmxCvImpl::process(const cv::Mat &mat) {
 
     assert(mat.cols == m_width && mat.rows == m_height);
     auto now = steady_clock::now();
-    BGR2RGB(mat, in->pBuffer, m_stride);
+    memcpy(in->pBuffer, mat.data, m_stride * m_height);
+    //BGR2RGB(mat, in->pBuffer, m_stride);
     in->nFilledLen = in->nAllocLen;
 
     std::unique_lock<std::mutex> lock(m_input_mutex);

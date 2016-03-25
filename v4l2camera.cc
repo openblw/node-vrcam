@@ -292,7 +292,7 @@ v8::Handle<v8::Value> Camera::StartRecord(const v8::Arguments& args) {
 	v8::HandleScope scope;
 	auto thisObj = args.This();
 	auto camera = node::ObjectWrap::Unwrap < Camera > (thisObj)->camera;
-	StartRecord();
+	::StartRecord();
 	return scope.Close(thisObj);
 }
 
@@ -300,7 +300,7 @@ v8::Handle<v8::Value> Camera::StopRecord(const v8::Arguments& args) {
 	v8::HandleScope scope;
 	auto thisObj = args.This();
 	auto camera = node::ObjectWrap::Unwrap < Camera > (thisObj)->camera;
-	StopRecord();
+	::StopRecord();
 	return scope.Close(thisObj);
 }
 
@@ -310,7 +310,7 @@ void Camera::CaptureCB(uv_poll_t* handle, int /*status*/, int /*events*/) {
 		auto thisObj = v8::Local<v8::Object>::New(data->thisObj);
 		auto camera = node::ObjectWrap::Unwrap<Camera>(thisObj)->camera;
 		bool captured = camera_capture(camera);
-		AddFrame(camera->width, camera->height, camera->width * 3, camera->head.start);
+		::AddFrame(camera->width, camera->height, camera->width * 3, camera->head.start);
 		v8::Local<v8::Value> argv[] = {
 			v8::Local<v8::Value>::New(v8::Boolean::New(captured)),
 		};
