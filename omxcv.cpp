@@ -245,17 +245,17 @@ OmxCvImpl::OmxCvImpl(const char *name, int width, int height, int bitrate,
 	CHECKED(ret != OMX_ErrorNone,
 			"OMX_SetParameter failed for setting encoder output format.");
 
-//	//Set the encoding bitrate
-//	OMX_VIDEO_PARAM_BITRATETYPE bitrate_type = { 0 };
-//	bitrate_type.nSize = sizeof(OMX_VIDEO_PARAM_BITRATETYPE);
-//	bitrate_type.nVersion.nVersion = OMX_VERSION;
-//	bitrate_type.eControlRate = OMX_Video_ControlRateVariable;
-//	bitrate_type.nTargetBitrate = bitrate * 1000;
-//	bitrate_type.nPortIndex = OMX_ENCODE_PORT_OUT;
-//	ret = OMX_SetParameter(ILC_GET_HANDLE(m_encoder_component),
-//			OMX_IndexParamVideoBitrate, &bitrate_type);
-//	CHECKED(ret != OMX_ErrorNone,
-//			"OMX_SetParameter failed for setting encoder bitrate.");
+	//Set the encoding bitrate
+	OMX_VIDEO_PARAM_BITRATETYPE bitrate_type = { 0 };
+	bitrate_type.nSize = sizeof(OMX_VIDEO_PARAM_BITRATETYPE);
+	bitrate_type.nVersion.nVersion = OMX_VERSION;
+	bitrate_type.eControlRate = OMX_Video_ControlRateVariable;
+	bitrate_type.nTargetBitrate = bitrate * 1000;
+	bitrate_type.nPortIndex = OMX_ENCODE_PORT_OUT;
+	ret = OMX_SetParameter(ILC_GET_HANDLE(m_encoder_component),
+			OMX_IndexParamVideoBitrate, &bitrate_type);
+	CHECKED(ret != OMX_ErrorNone,
+			"OMX_SetParameter failed for setting encoder bitrate.");
 
 	if (format.eCompressionFormat == OMX_VIDEO_CodingAVC) {
 		//Set the output profile level of the encoder
