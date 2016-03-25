@@ -6,6 +6,10 @@
 extern "C" {
 #endif
 
+int StartRecord();
+int StopRecord();
+int AddFrame(int width, int height, int stride,
+		const unsigned char *imagedata);
 int SaveJpegAsEquirectangular(int width, int height, int stride,
 		const unsigned char *imagedata, const char *out_filename);
 

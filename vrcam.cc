@@ -50,7 +50,7 @@ int StartRecord() {
 	return 0;
 }
 
-int StartRecord() {
+int StopRecord() {
 	if(recorder == NULL) return -1;
 	delete recorder;
 	recorder = NULL;
@@ -67,7 +67,7 @@ int AddFrame(int width, int height, int stride,
 	memcpy(raw_image.data, imagedata, stride * height);
 
 	transformer.Transform(raw_image, vr_image);
-	recorder->Encode(vr_image)
+	recorder->Encode(vr_image);
 }
 
 int SaveJpegAsEquirectangular(int width, int height, int stride,
