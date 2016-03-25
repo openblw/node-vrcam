@@ -237,24 +237,27 @@ OmxCvImpl::OmxCvImpl(const char *name, int width, int height, int bitrate,
 	format.nSize = sizeof(OMX_VIDEO_PARAM_PORTFORMATTYPE);
 	format.nVersion.nVersion = OMX_VERSION;
 	format.nPortIndex = OMX_ENCODE_PORT_OUT;
-	format.eCompressionFormat = OMX_VIDEO_CodingAVC;
+	//format.eCompressionFormat = OMX_VIDEO_CodingAVC;
+	format.eCompressionFormat = OMX_VIDEO_CodingMPEG4;
 
 	ret = OMX_SetParameter(ILC_GET_HANDLE(m_encoder_component),
 			OMX_IndexParamVideoPortFormat, &format);
 	CHECKED(ret != OMX_ErrorNone,
 			"OMX_SetParameter failed for setting encoder output format.");
 
-	//Set the output profile level of the encoder
-	OMX_VIDEO_PARAM_PROFILELEVELTYPE profileLevel; // OMX_IndexParamVideoProfileLevelCurrent
-	profileLevel.nSize = sizeof(OMX_VIDEO_PARAM_PROFILELEVELTYPE);
-	profileLevel.nVersion.nVersion = OMX_VERSION;
-	profileLevel.nPortIndex = OMX_ENCODE_PORT_OUT;
-	profileLevel.eProfile = OMX_VIDEO_AVCProfileBaseline;
-	profileLevel.eLevel = OMX_VIDEO_AVCLevel4;
-	ret = OMX_SetParameter(ILC_GET_HANDLE(m_encoder_component),
-			OMX_IndexParamVideoProfileLevelCurrent, &profileLevel);
-	CHECKED(ret != OMX_ErrorNone,
-			"OMX_SetParameter failed for setting encoder output format.");
+	if (format.eCompressionFormat == OMX_VIDEO_CodingAVC) {
+		//Set the output profile level of the encoder
+		OMX_VIDEO_PARAM_PROFILELEVELTYPE profileLevel; // OMX_IndexParamVideoProfileLevelCurrent
+		profileLevel.nSize = sizeof(OMX_VIDEO_PARAM_PROFILELEVELTYPE);
+		profileLevel.nVersion.nVersion = OMX_VERSION;
+		profileLevel.nPortIndex = OMX_ENCODE_PORT_OUT;
+		profileLevel.eProfile = OMX_VIDEO_AVCProfileBaseline;
+		profileLevel.eLevel = OMX_VIDEO_AVCLevel4;
+		ret = OMX_SetParameter(ILC_GET_HANDLE(m_encoder_component),
+				OMX_IndexParamVideoProfileLevelCurrent, &profileLevel);
+		CHECKED(ret != OMX_ErrorNone,
+				"OMX_SetParameter failed for setting encoder output format.");
+	}
 
 	//Set the encoding bitrate
 	OMX_VIDEO_PARAM_BITRATETYPE bitrate_type = { 0 };
@@ -359,7 +362,7 @@ OmxCvImpl::~OmxCvImpl() {
 void OmxCvImpl::input_worker() {
 	std::unique_lock < std::mutex > lock(m_input_mutex);
 	OMX_BUFFERHEADERTYPE *out = ilclient_get_output_buffer(m_encoder_component,
-			OMX_ENCODE_PORT_OUT, 1);
+	OMX_ENCODE_PORT_OUT, 1);
 
 	while (true) {
 		m_input_signaller.wait(lock,
@@ -390,7 +393,7 @@ void OmxCvImpl::input_worker() {
 			out->nFilledLen = 0; //I don't think this is necessary, but whatever.
 			OMX_FillThisBuffer(ILC_GET_HANDLE(m_encoder_component), out);
 			out = ilclient_get_output_buffer(m_encoder_component,
-					OMX_ENCODE_PORT_OUT, 1);
+			OMX_ENCODE_PORT_OUT, 1);
 		} while (!write_data(out, frame.second));
 
 		lock.lock();
@@ -511,7 +514,7 @@ bool OmxCvImpl::write_data(OMX_BUFFERHEADERTYPE *out, int64_t timestamp) {
  */
 bool OmxCvImpl::process(const cv::Mat &mat) {
 	OMX_BUFFERHEADERTYPE *in = ilclient_get_input_buffer(m_encoder_component,
-			OMX_ENCODE_PORT_IN, 0);
+	OMX_ENCODE_PORT_IN, 0);
 	if (in == NULL) {
 		printf("No free buffer; dropping frame!\n");
 		return false;
