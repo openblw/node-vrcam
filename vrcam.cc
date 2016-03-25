@@ -67,7 +67,7 @@ int AddFrame(int width, int height, int stride,
 	memcpy(raw_image.data, imagedata, stride * height);
 
 	transformer.Transform(raw_image, vr_image);
-	recorder->Encode(image)
+	recorder->Encode(vr_image)
 }
 
 int SaveJpegAsEquirectangular(int width, int height, int stride,
