@@ -7,7 +7,12 @@
     "cflags_cc": ["-std=c++11", "-fexceptions"],
     'include_dirs': [
                     "/opt/vc/include",
-                    "/opt/vc/include/interface/vcos/pthreads"
+                    "/opt/vc/src/hello_pi/libs/ilclient",
+                    "/opt/vc/include/interface/vcos/pthreads",
+                    "/opt/vc/include/IL",
+                    "/opt/vc/include/interface/vmcs_host/linux",
+                    "/opt/vc/lib",
+                    "/opt/vc/src/hello_pi/libs/ilclient"
                     ],
 	'libraries': [
 					"-L/home/pi/git/omxcv/",
