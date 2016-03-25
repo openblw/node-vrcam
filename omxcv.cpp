@@ -252,41 +252,41 @@ OmxCvImpl::OmxCvImpl(const char *name, int width, int height, int bitrate,
 		profileLevel.nVersion.nVersion = OMX_VERSION;
 		profileLevel.nPortIndex = OMX_ENCODE_PORT_OUT;
 		profileLevel.eProfile = OMX_VIDEO_AVCProfileBaseline;
-		profileLevel.eLevel = OMX_VIDEO_AVCLevel4;
+		profileLevel.eLevel = OMX_VIDEO_AVCLevel3;
 		ret = OMX_SetParameter(ILC_GET_HANDLE(m_encoder_component),
 				OMX_IndexParamVideoProfileLevelCurrent, &profileLevel);
 
-//		//I think this decreases the chance of NALUs being split across buffers.
-//		/*
-//		 OMX_CONFIG_BOOLEANTYPE frg = {0};
-//		 frg.nSize = sizeof(OMX_CONFIG_BOOLEANTYPE);
-//		 frg.nVersion.nVersion = OMX_VERSION;
-//		 frg.bEnabled = OMX_TRUE;
-//		 ret = OMX_SetParameter(ILC_GET_HANDLE(m_encoder_component),
-//		 OMX_IndexConfigMinimiseFragmentation, &frg);
-//		 CHECKED(ret != 0, "OMX_SetParameter failed for setting fragmentation minimisation.");
-//		 */
-//
-//		CHECKED(ret != OMX_ErrorNone,
-//				"OMX_SetParameter failed for setting encoder output format.");
-//		//We want at most one NAL per output buffer that we receive.
-//		OMX_CONFIG_BOOLEANTYPE nal = { 0 };
-//		nal.nSize = sizeof(OMX_CONFIG_BOOLEANTYPE);
-//		nal.nVersion.nVersion = OMX_VERSION;
-//		nal.bEnabled = OMX_TRUE;
-//		ret = OMX_SetParameter(ILC_GET_HANDLE(m_encoder_component),
-//				OMX_IndexParamBrcmNALSSeparate, &nal);
-//		CHECKED(ret != 0, "OMX_SetParameter failed for setting separate NALUs.");
-//
-//		//We want the encoder to write the NALU length instead start codes.
-//		OMX_NALSTREAMFORMATTYPE nal2 = { 0 };
-//		nal2.nSize = sizeof(OMX_NALSTREAMFORMATTYPE);
-//		nal2.nVersion.nVersion = OMX_VERSION;
-//		nal2.nPortIndex = OMX_ENCODE_PORT_OUT;
-//		nal2.eNaluFormat = OMX_NaluFormatFourByteInterleaveLength;
-//		ret = OMX_SetParameter(ILC_GET_HANDLE(m_encoder_component),
-//				(OMX_INDEXTYPE) OMX_IndexParamNalStreamFormatSelect, &nal2);
-//		CHECKED(ret != 0, "OMX_SetParameter failed for setting NALU format.");
+		//I think this decreases the chance of NALUs being split across buffers.
+		/*
+		 OMX_CONFIG_BOOLEANTYPE frg = {0};
+		 frg.nSize = sizeof(OMX_CONFIG_BOOLEANTYPE);
+		 frg.nVersion.nVersion = OMX_VERSION;
+		 frg.bEnabled = OMX_TRUE;
+		 ret = OMX_SetParameter(ILC_GET_HANDLE(m_encoder_component),
+		 OMX_IndexConfigMinimiseFragmentation, &frg);
+		 CHECKED(ret != 0, "OMX_SetParameter failed for setting fragmentation minimisation.");
+		 */
+
+		CHECKED(ret != OMX_ErrorNone,
+				"OMX_SetParameter failed for setting encoder output format.");
+		//We want at most one NAL per output buffer that we receive.
+		OMX_CONFIG_BOOLEANTYPE nal = { 0 };
+		nal.nSize = sizeof(OMX_CONFIG_BOOLEANTYPE);
+		nal.nVersion.nVersion = OMX_VERSION;
+		nal.bEnabled = OMX_TRUE;
+		ret = OMX_SetParameter(ILC_GET_HANDLE(m_encoder_component),
+				OMX_IndexParamBrcmNALSSeparate, &nal);
+		CHECKED(ret != 0, "OMX_SetParameter failed for setting separate NALUs.");
+
+		//We want the encoder to write the NALU length instead start codes.
+		OMX_NALSTREAMFORMATTYPE nal2 = { 0 };
+		nal2.nSize = sizeof(OMX_NALSTREAMFORMATTYPE);
+		nal2.nVersion.nVersion = OMX_VERSION;
+		nal2.nPortIndex = OMX_ENCODE_PORT_OUT;
+		nal2.eNaluFormat = OMX_NaluFormatFourByteInterleaveLength;
+		ret = OMX_SetParameter(ILC_GET_HANDLE(m_encoder_component),
+				(OMX_INDEXTYPE) OMX_IndexParamNalStreamFormatSelect, &nal2);
+		CHECKED(ret != 0, "OMX_SetParameter failed for setting NALU format.");
 	}
 
 	//Set the encoding bitrate
