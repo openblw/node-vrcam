@@ -15,7 +15,6 @@
                     "/opt/vc/src/hello_pi/libs/ilclient"
                     ],
 	'libraries': [
-					"-L/home/pi/git/omxcv/",
 					"-L/opt/vc/lib",
 					"-L/opt/vc/src/hello_pi/libs/ilclient",
 					"-lopencv_videostab",
@@ -36,7 +35,6 @@
 					"-lopencv_imgproc",
 					"-lopencv_flann",
 					"-lopencv_core",
-					"-lomxcv",
 					"-lbcm_host",
 					"-lilclient",
 					"-lopenmaxil",
