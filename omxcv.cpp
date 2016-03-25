@@ -263,8 +263,8 @@ OmxCvImpl::OmxCvImpl(const char *name, int width, int height, int bitrate,
 		profileLevel.nSize = sizeof(OMX_VIDEO_PARAM_PROFILELEVELTYPE);
 		profileLevel.nVersion.nVersion = OMX_VERSION;
 		profileLevel.nPortIndex = OMX_ENCODE_PORT_OUT;
-		profileLevel.eProfile = OMX_VIDEO_AVCProfileHigh;
-		profileLevel.eLevel = OMX_VIDEO_AVCLevel41;
+		profileLevel.eProfile = OMX_VIDEO_AVCProfileMain;
+		profileLevel.eLevel = OMX_VIDEO_AVCLevel31;
 		ret = OMX_SetParameter(ILC_GET_HANDLE(m_encoder_component),
 				OMX_IndexParamVideoProfileLevelCurrent, &profileLevel);
 
