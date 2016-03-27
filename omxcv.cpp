@@ -71,6 +71,7 @@ bool OmxCvImpl::lav_init() {
 		avformat_free_context(m_mux_ctx);
 		return false;
 	}
+	avcodec_get_context_defaults3(m_video_stream->codec, avcodec_find_encoder(CODEC_ID_H264));
 
 	snprintf(buf, sizeof(buf), "Created at %sBitrate: %d Kbps",
 			ctime((time_t*) &m_mux_ctx->start_time_realtime), m_bitrate);

@@ -13,10 +13,10 @@
 #include <thread>
 
 #define CAMERA_DEV   "/dev/video0"
-#define CAMERA_WIDTH  1280
-#define CAMERA_HEIGHT 480
-#define EQUIRECTANGULAR_WIDTH  1024
-#define EQUIRECTANGULAR_HEIGHT 512
+#define CAMERA_WIDTH  2560
+#define CAMERA_HEIGHT 960
+#define EQUIRECTANGULAR_WIDTH  2048
+#define EQUIRECTANGULAR_HEIGHT 1024
 #define MMAP_COUNT    2
 #define PICTURE_NUM   10
 
@@ -46,7 +46,7 @@ OmxCv *recorder = NULL;
 
 int StartRecord() {
 	recorder = new OmxCv((const char*) "/tmp/movie.mov", EQUIRECTANGULAR_WIDTH,
-			EQUIRECTANGULAR_HEIGHT, 4000);
+			EQUIRECTANGULAR_HEIGHT, 16000);
 	return 0;
 }
 
