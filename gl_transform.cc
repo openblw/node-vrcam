@@ -15,7 +15,6 @@
 #include <cstring>
 #include <chrono>
 
-extern "C" {
 #include <mat4/type.h>
 #include <mat4/create.h>
 #include <mat4/identity.h>
@@ -23,7 +22,6 @@ extern "C" {
 #include <mat4/rotateY.h>
 #include <mat4/rotateZ.h>
 #include <mat4/multiply.h>
-}
 
 using std::chrono::milliseconds;
 using std::chrono::steady_clock;
@@ -149,7 +147,7 @@ void GLTransform::Transform(const cv::Mat &in, cv::Mat &out) {
 	glUseProgram(m_program->GetId());
 	check();
 
-	m4 unif_matrix = mat4_create();
+	mat4 unif_matrix = mat4_create();
 	mat4_identity(unif_matrix);
 	mat4_rotateZ(unif_matrix, unif_matrix, z_rad);
 	mat4_rotateY(unif_matrix, unif_matrix, y_rad);
