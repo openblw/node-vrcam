@@ -15,13 +15,13 @@
 #include <cstring>
 #include <chrono>
 
-//#include <mat4/type.h>
-//#include <mat4/create.h>
-//#include <mat4/identity.h>
-//#include <mat4/rotateX.h>
-//#include <mat4/rotateY.h>
-//#include <mat4/rotateZ.h>
-//#include <mat4/multiply.h>
+#include <mat4/type.h>
+#include <mat4/create.h>
+#include <mat4/identity.h>
+#include <mat4/rotateX.h>
+#include <mat4/rotateY.h>
+#include <mat4/rotateZ.h>
+#include <mat4/multiply.h>
 
 using std::chrono::milliseconds;
 using std::chrono::steady_clock;
@@ -123,16 +123,16 @@ void GLTransform::GetRenderedData(void *buffer) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-//void GLTransform::SetRotation(float x_deg, float y_deg, float z_deg) {
-//	m_x_deg = x_deg;
-//	m_y_deg = y_deg;
-//	m_z_deg = z_deg;
-//}
+void GLTransform::SetRotation(float x_deg, float y_deg, float z_deg) {
+	m_x_deg = x_deg;
+	m_y_deg = y_deg;
+	m_z_deg = z_deg;
+}
 
 void GLTransform::Transform(const cv::Mat &in, cv::Mat &out) {
-//	float x_rad = m_x_deg * M_PI / 180.0;
-//	float y_rad = m_y_deg * M_PI / 180.0;
-//	float z_rad = m_z_deg * M_PI / 180.0;
+	float x_rad = m_x_deg * M_PI / 180.0;
+	float y_rad = m_y_deg * M_PI / 180.0;
+	float z_rad = m_z_deg * M_PI / 180.0;
 
 	//Load the data into a texture.
 	m_texture->SetData(in.data);
@@ -147,16 +147,16 @@ void GLTransform::Transform(const cv::Mat &in, cv::Mat &out) {
 	glUseProgram(m_program->GetId());
 	check();
 
-//	m4 unif_matrix = mat4_create();
-//	mat4_identity(unif_matrix);
-//	mat4_rotateZ(unif_matrix, unif_matrix, z_rad);
-//	mat4_rotateY(unif_matrix, unif_matrix, y_rad);
-//	mat4_rotateX(unif_matrix, unif_matrix, x_rad);
+	m4 unif_matrix = mat4_create();
+	mat4_identity(unif_matrix);
+	mat4_rotateZ(unif_matrix, unif_matrix, z_rad);
+	mat4_rotateY(unif_matrix, unif_matrix, y_rad);
+	mat4_rotateX(unif_matrix, unif_matrix, x_rad);
 
 	//Load in the texture and thresholding parameters.
 	glUniform1i(glGetUniformLocation(m_program->GetId(), "tex"), 0);
-//	glUniformMatrix4fv(glGetUniformLocation(m_program->GetId(), "unif_matrix"),
-//			1, GL_FALSE, (GLfloat*) unif_matrix);
+	glUniformMatrix4fv(glGetUniformLocation(m_program->GetId(), "unif_matrix"),
+			1, GL_FALSE, (GLfloat*) unif_matrix);
 	//glUniform4f(glGetUniformLocation(m_program->GetId(), "threshLow"),0,167/255.0, 86/255.0,0);
 	//glUniform4f(glGetUniformLocation(m_program->GetId(), "threshHigh"),255/255.0,255/255.0, 141/255.0,1);
 	check();

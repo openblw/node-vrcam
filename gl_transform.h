@@ -72,9 +72,9 @@ private:
 	GLuint m_quad_buffer;
 	GLuint m_framebuffer_id;
 
-//	float m_x_deg;
-//	float m_y_deg;
-//	float m_z_deg;
+	float m_x_deg;
+	float m_y_deg;
+	float m_z_deg;
 };
 
 }
