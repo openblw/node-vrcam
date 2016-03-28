@@ -58,7 +58,7 @@ int StopRecord() {
 }
 
 int SetRotation(float x_deg, float y_deg, float z_deg) {
-	transformer(x_deg, y_deg, z_deg);
+	transformer.SetRotation(x_deg, y_deg, z_deg);
 }
 
 int AddFrame(int width, int height, int stride,
