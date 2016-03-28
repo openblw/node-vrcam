@@ -6,6 +6,7 @@
     "cflags_c": ["-std=c11", "-Wno-unused-parameter"], 
     "cflags_cc": ["-std=c++11", "-fexceptions"],
     'include_dirs': [
+					"../",
                     "/opt/vc/include",
                     "/opt/vc/src/hello_pi/libs/ilclient",
                     "/opt/vc/include/interface/vcos/pthreads",
