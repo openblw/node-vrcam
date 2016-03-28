@@ -155,8 +155,8 @@ void GLTransform::Transform(const cv::Mat &in, cv::Mat &out) {
 
 	//Load in the texture and thresholding parameters.
 	glUniform1i(glGetUniformLocation(m_program->GetId(), "tex"), 0);
-	glUniformMatrix4fv(glGetUniformLocation(m_program->GetId(), "unif_matrix"),
-			1, GL_FALSE, (GLfloat*) unif_matrix);
+//	glUniformMatrix4fv(glGetUniformLocation(m_program->GetId(), "unif_matrix"),
+//			1, GL_FALSE, (GLfloat*) unif_matrix);
 	//glUniform4f(glGetUniformLocation(m_program->GetId(), "threshLow"),0,167/255.0, 86/255.0,0);
 	//glUniform4f(glGetUniformLocation(m_program->GetId(), "threshHigh"),255/255.0,255/255.0, 141/255.0,1);
 	check();
