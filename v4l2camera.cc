@@ -29,6 +29,7 @@ private:
 	static v8::Handle<v8::Value> ToYUYV(const v8::Arguments& args);
 	static v8::Handle<v8::Value> ToRGB(const v8::Arguments& args);
 	static v8::Handle<v8::Value> ToJpegAsEquirectangular(const v8::Arguments& args);
+	static v8::Handle<v8::Value> SetRotation(const v8::Arguments& args);
 	static v8::Handle<v8::Value> ConfigGet(const v8::Arguments& args);
 	static v8::Handle<v8::Value> ConfigSet(const v8::Arguments& args);
 	static v8::Handle<v8::Value> ControlGet(const v8::Arguments& args);
@@ -356,6 +357,13 @@ v8::Handle<v8::Value> Camera::ToJpegAsEquirectangular(const v8::Arguments& args)
 	return scope.Close(thisObj);
 }
 
+v8::Handle<v8::Value> Camera::SetRotation(const v8::Arguments& args) {
+	v8::HandleScope scope;
+	auto thisObj = args.This();
+	auto camera = node::ObjectWrap::Unwrap < Camera > (thisObj)->camera;
+	return scope.Close(thisObj);
+}
+
 v8::Handle<v8::Value> Camera::ConfigGet(const v8::Arguments& args) {
 	v8::HandleScope scope;
 	auto thisObj = args.This();
@@ -442,6 +450,7 @@ void Camera::Init(v8::Handle<v8::Object> exports) {
 	setMethod(proto, "toYUYV", ToYUYV);
 	setMethod(proto, "toRGB", ToRGB);
 	setMethod(proto, "toJpegAsEquirectangular", ToJpegAsEquirectangular);
+	setMethod(proto, "setRotation", SetRotation);
 	setMethod(proto, "configGet", ConfigGet);
 	setMethod(proto, "configSet", ConfigSet);
 	setMethod(proto, "controlGet", ControlGet);
