@@ -123,11 +123,11 @@ void GLTransform::GetRenderedData(void *buffer) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void GLTransform::SetRotation(float x_deg, float y_deg, float z_deg) {
-	m_x_deg = x_deg;
-	m_y_deg = y_deg;
-	m_z_deg = z_deg;
-}
+//void GLTransform::SetRotation(float x_deg, float y_deg, float z_deg) {
+//	m_x_deg = x_deg;
+//	m_y_deg = y_deg;
+//	m_z_deg = z_deg;
+//}
 
 void GLTransform::Transform(const cv::Mat &in, cv::Mat &out) {
 //	float x_rad = m_x_deg * M_PI / 180.0;
