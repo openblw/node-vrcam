@@ -15,7 +15,7 @@
                     "/opt/vc/src/hello_pi/libs/ilclient"
                     ],
 	'libraries': [
-					"-L./",
+					"-L../",
 					"-L/opt/vc/lib",
 					"-L/opt/vc/src/hello_pi/libs/ilclient",
 					"-lopencv_videostab",
