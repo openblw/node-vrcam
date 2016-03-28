@@ -15,6 +15,7 @@
 #include <cstring>
 #include <chrono>
 
+extern "C" {
 #include <mat4/type.h>
 #include <mat4/create.h>
 #include <mat4/identity.h>
@@ -22,6 +23,7 @@
 #include <mat4/rotateY.h>
 #include <mat4/rotateZ.h>
 #include <mat4/multiply.h>
+}
 
 using std::chrono::milliseconds;
 using std::chrono::steady_clock;
