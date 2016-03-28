@@ -57,7 +57,7 @@ public:
 	virtual ~GLTransform();
 
 	void Transform(const cv::Mat &in, cv::Mat &out);
-	//void SetRotation(float x_deg, float y_deg, float z_deg);
+	void SetRotation(float x_deg, float y_deg, float z_deg);
 
 private:
 	void GetRenderedData(void *buffer);
