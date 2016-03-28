@@ -57,6 +57,10 @@ int StopRecord() {
 	return 0;
 }
 
+int SetRotation(float x_deg, float y_deg, float z_deg) {
+	transformer(x_deg, y_deg, z_deg);
+}
+
 int AddFrame(int width, int height, int stride,
 		const unsigned char *imagedata) {
 	if(recorder == NULL) return -1;
