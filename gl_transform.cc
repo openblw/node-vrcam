@@ -161,6 +161,8 @@ void GLTransform::Transform(const cv::Mat &in, cv::Mat &out) {
 	//glUniform4f(glGetUniformLocation(m_program->GetId(), "threshHigh"),255/255.0,255/255.0, 141/255.0,1);
 	check();
 
+	free(unif_matrix);
+
 	glBindBuffer(GL_ARRAY_BUFFER, m_quad_buffer);
 	check();
 	glBindTexture(GL_TEXTURE_2D, m_texture->GetTextureId());
