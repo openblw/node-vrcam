@@ -363,9 +363,9 @@ v8::Handle<v8::Value> Camera::SetRotation(const v8::Arguments& args) {
 	auto camera = node::ObjectWrap::Unwrap < Camera > (thisObj)->camera;
 	if (args.Length() < 3)
 		throwTypeError("argument required: rotation");
-	float x_deg = args[0]->FloatValue();
-	float y_deg = args[1]->FloatValue();
-	float z_deg = args[2]->FloatValue();
+	float x_deg = args[0]->NumberValue();
+	float y_deg = args[1]->NumberValue();
+	float z_deg = args[2]->NumberValue();
 	::SetRotation(x_deg, y_deg, z_deg);
 	return scope.Close(thisObj);
 }
