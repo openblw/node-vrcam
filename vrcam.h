@@ -12,6 +12,7 @@ int AddFrame(int width, int height, int stride,
 		const unsigned char *imagedata);
 int SaveJpegAsEquirectangular(int width, int height, int stride,
 		const unsigned char *imagedata, const char *out_filename);
+int SetRotation(float x_deg, float y_deg, float z_deg);
 
 #ifdef __cplusplus
 }
