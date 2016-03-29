@@ -1,7 +1,5 @@
 varying vec2 tcoord;
 uniform mat4 unif_matrix;
-arying vec2 tcoord;
-uniform mat4 unif_matrix;
 uniform sampler2D tex;
 
 const float M_PI = 3.1415926535;
