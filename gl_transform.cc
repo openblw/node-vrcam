@@ -147,11 +147,11 @@ void GLTransform::Transform(const cv::Mat &in, cv::Mat &out) {
 	glUseProgram(m_program->GetId());
 	check();
 
-//	mat4 unif_matrix = mat4_create();
-//	mat4_identity(unif_matrix);
-//	mat4_rotateZ(unif_matrix, unif_matrix, z_rad);
-//	mat4_rotateY(unif_matrix, unif_matrix, y_rad);
-//	mat4_rotateX(unif_matrix, unif_matrix, x_rad);
+	mat4 unif_matrix = mat4_create();
+	mat4_identity(unif_matrix);
+	mat4_rotateZ(unif_matrix, unif_matrix, z_rad);
+	mat4_rotateY(unif_matrix, unif_matrix, y_rad);
+	mat4_rotateX(unif_matrix, unif_matrix, x_rad);
 
 	//Load in the texture and thresholding parameters.
 	glUniform1i(glGetUniformLocation(m_program->GetId(), "tex"), 0);
@@ -161,7 +161,7 @@ void GLTransform::Transform(const cv::Mat &in, cv::Mat &out) {
 	//glUniform4f(glGetUniformLocation(m_program->GetId(), "threshHigh"),255/255.0,255/255.0, 141/255.0,1);
 	check();
 
-//	free(unif_matrix);
+	free(unif_matrix);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_quad_buffer);
 	check();
