@@ -22,6 +22,7 @@
 #include <mat4/rotateY.h>
 #include <mat4/rotateZ.h>
 #include <mat4/multiply.h>
+#include <mat4/transpose.h>
 
 using std::chrono::milliseconds;
 using std::chrono::steady_clock;
@@ -152,6 +153,7 @@ void GLTransform::Transform(const cv::Mat &in, cv::Mat &out) {
 	mat4_rotateZ(unif_matrix, unif_matrix, z_rad);
 	mat4_rotateY(unif_matrix, unif_matrix, y_rad);
 	mat4_rotateX(unif_matrix, unif_matrix, x_rad);
+	mat4_transpose(unif_matrix);
 
 	//Load in the texture and thresholding parameters.
 	glUniform1i(glGetUniformLocation(m_program->GetId(), "tex"), 0);

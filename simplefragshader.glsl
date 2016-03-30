@@ -22,7 +22,7 @@ void main(void) {
         if(phi > -0.1 && phi < 0.1) {
         } else if (phi > 0.0) {
                 float r = (phi - M_PI / 2.0) / M_PI;
-                float theta2 = theta;
+                float theta2 = -theta;
                 u = r * cos(theta2) + center1.x;
                 v = aspect * r * sin(theta2) + center1.y;
                 if (u <= 0.0 || u > 1.0 || v <= 0.0 || v > 1.0) {
@@ -33,7 +33,7 @@ void main(void) {
                 }
         } else {
                 float r = (phi + M_PI / 2.0) / M_PI;
-                float theta2 = -theta - M_PI / 2.0 - M_PI / 45.0;
+                float theta2 = theta - M_PI / 2.0 - M_PI / 45.0;
                 u = r * cos(theta2) + center2.x;
                 v = aspect * r * sin(theta2) + center2.y;
                 if (u <= 0.0 || u > 1.0 || v <= 0.0 || v > 1.0) {
