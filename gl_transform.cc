@@ -153,7 +153,7 @@ void GLTransform::Transform(const cv::Mat &in, cv::Mat &out) {
 	mat4_rotateX(unif_matrix, unif_matrix, x_rad);
 	mat4_rotateY(unif_matrix, unif_matrix, y_rad);
 	mat4_rotateZ(unif_matrix, unif_matrix, z_rad);
-	mat4_transpose(unif_matrix, unif_matrix);
+	//mat4_transpose(unif_matrix, unif_matrix);
 
 	//Load in the texture and thresholding parameters.
 	glUniform1i(glGetUniformLocation(m_program->GetId(), "tex"), 0);
