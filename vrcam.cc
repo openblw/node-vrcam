@@ -46,7 +46,7 @@ OmxCv *recorder = NULL;
 
 int StartRecord() {
 	recorder = new OmxCv((const char*) "/tmp/movie.mov", EQUIRECTANGULAR_WIDTH,
-			EQUIRECTANGULAR_HEIGHT, 400000);
+			EQUIRECTANGULAR_HEIGHT, 1000000);
 	return 0;
 }
 
