@@ -53,9 +53,7 @@ void BGR2RGB(const cv::Mat &src, uint8_t *dst, int stride) {
 OmxCvImpl::OmxCvImpl(const char *name, int width, int height, int bitrate,
 		int fpsnum, int fpsden) :
 		m_width(width), m_height(height), m_stride(((width + 31) & ~31) * 3), m_bitrate(
-				bitrate), m_sps(nullptr), m_pps(nullptr), m_sps_length(0), m_pps_length(
-				0), m_nalu_filled(0), m_nalu_required(0), m_initted_header(
-				false), m_filename(name), m_stop { false } {
+				bitrate), m_filename(name), m_stop { false } {
 	int ret;
 	bcm_host_init();
 
