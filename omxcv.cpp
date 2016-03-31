@@ -77,7 +77,7 @@ OmxCvImpl::OmxCvImpl(const char *name, int width, int height, int bitrate,
 	CHECKED(ret != 0, "ILCient video_encode component creation failed.");
 
 	//Set input definition to the encoder
-	OMX_PARAM_PORTDEFINITIONTYPE def = { 0 };
+	OMX_PARAM_PORTDEFINITIONTYPE def = {};
 	def.nSize = sizeof(OMX_PARAM_PORTDEFINITIONTYPE);
 	def.nVersion.nVersion = OMX_VERSION;
 	def.nPortIndex = OMX_ENCODE_PORT_IN;
@@ -105,7 +105,7 @@ OmxCvImpl::OmxCvImpl(const char *name, int width, int height, int bitrate,
 			"OMX_SetParameter failed for input format definition.");
 
 	//Set the output format of the encoder
-	OMX_VIDEO_PARAM_PORTFORMATTYPE format = { 0 };
+	OMX_VIDEO_PARAM_PORTFORMATTYPE format = {};
 	format.nSize = sizeof(OMX_VIDEO_PARAM_PORTFORMATTYPE);
 	format.nVersion.nVersion = OMX_VERSION;
 	format.nPortIndex = OMX_ENCODE_PORT_OUT;
@@ -118,7 +118,7 @@ OmxCvImpl::OmxCvImpl(const char *name, int width, int height, int bitrate,
 			"OMX_SetParameter failed for setting encoder output format.");
 
 	//Set the encoding bitrate
-	OMX_VIDEO_PARAM_BITRATETYPE bitrate_type = { 0 };
+	OMX_VIDEO_PARAM_BITRATETYPE bitrate_type = {};
 	bitrate_type.nSize = sizeof(OMX_VIDEO_PARAM_BITRATETYPE);
 	bitrate_type.nVersion.nVersion = OMX_VERSION;
 	bitrate_type.eControlRate = OMX_Video_ControlRateVariable;
@@ -154,7 +154,7 @@ OmxCvImpl::OmxCvImpl(const char *name, int width, int height, int bitrate,
 		CHECKED(ret != OMX_ErrorNone,
 				"OMX_SetParameter failed for setting encoder output format.");
 		//We want at most one NAL per output buffer that we receive.
-		OMX_CONFIG_BOOLEANTYPE nal = { 0 };
+		OMX_CONFIG_BOOLEANTYPE nal = {};
 		nal.nSize = sizeof(OMX_CONFIG_BOOLEANTYPE);
 		nal.nVersion.nVersion = OMX_VERSION;
 		nal.bEnabled = OMX_TRUE;
@@ -164,7 +164,7 @@ OmxCvImpl::OmxCvImpl(const char *name, int width, int height, int bitrate,
 				"OMX_SetParameter failed for setting separate NALUs.");
 
 		//We want the encoder to write the NALU length instead start codes.
-		OMX_NALSTREAMFORMATTYPE nal2 = { 0 };
+		OMX_NALSTREAMFORMATTYPE nal2 = {};
 		nal2.nSize = sizeof(OMX_NALSTREAMFORMATTYPE);
 		nal2.nVersion.nVersion = OMX_VERSION;
 		nal2.nPortIndex = OMX_ENCODE_PORT_OUT;
