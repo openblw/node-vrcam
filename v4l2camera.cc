@@ -315,7 +315,8 @@ void Camera::CaptureCB(uv_poll_t* handle, int /*status*/, int /*events*/) {
 		auto thisObj = v8::Local<v8::Object>::New(data->thisObj);
 		auto camera = node::ObjectWrap::Unwrap<Camera>(thisObj)->camera;
 		bool captured = camera_capture(camera);
-		::AddFrame(camera->width, camera->height, camera->width * 3, camera->head.start);
+		::Transform(camera->width, camera->height, camera->width * 3, camera->head.start);
+		::AddFrame(EQUIRECTANGULAR_WIDTH, EQUIRECTANGULAR_HEIGHT, EQUIRECTANGULAR_WIDTH * 3, camera->head.start);
 		v8::Local<v8::Value> argv[] = {
 			v8::Local<v8::Value>::New(v8::Boolean::New(captured)),
 		};
@@ -360,7 +361,7 @@ v8::Handle<v8::Value> Camera::ToJpegAsEquirectangular(const v8::Arguments& args)
 	if (args.Length() < 1)
 		throwTypeError("argument required: filename");
 	v8::String::AsciiValue filename(args[0]->ToString());
-	SaveJpegAsEquirectangular(camera->width, camera->height, camera->width * 3, camera->head.start, *filename);
+	SaveJpegAsEquirectangular(EQUIRECTANGULAR_WIDTH, EQUIRECTANGULAR_HEIGHT, EQUIRECTANGULAR_WIDTH * 3, camera->head.start, *filename);
 	return scope.Close(thisObj);
 }
 

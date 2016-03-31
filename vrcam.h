@@ -1,6 +1,8 @@
 #ifndef VRCAM_H
 #define VRCAM_H
 
+#define EQUIRECTANGULAR_WIDTH  1024
+#define EQUIRECTANGULAR_HEIGHT 512
 
 #ifdef __cplusplus
 extern "C" {
@@ -8,6 +10,8 @@ extern "C" {
 
 int StartRecord(const char *filename, int bitrate_kbps);
 int StopRecord();
+int Transform(int width, int height, int stride,
+		const unsigned char *imagedata);
 int AddFrame(int width, int height, int stride,
 		const unsigned char *imagedata);
 int SaveJpegAsEquirectangular(int width, int height, int stride,
