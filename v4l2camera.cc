@@ -293,7 +293,7 @@ v8::Handle<v8::Value> Camera::StartRecord(const v8::Arguments& args) {
 	v8::HandleScope scope;
 	auto thisObj = args.This();
 	auto camera = node::ObjectWrap::Unwrap < Camera > (thisObj)->camera;
-	::StartRecord("/tmp/movie.h264", 400);
+	::StartRecord("/tmp/movie.h264", 4000);
 	return scope.Close(thisObj);
 }
 
