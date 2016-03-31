@@ -29,15 +29,6 @@ extern "C" {
 #pragma pack()
 }
 
-//Determine what frame allocation routine to use
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)
-    #define OMXCV_AV_FRAME_ALLOC av_frame_alloc
-    #define OMXCV_AV_FRAME_FREE av_frame_free
-#else
-    #define OMXCV_AV_FRAME_ALLOC avcodec_alloc_frame
-    #define OMXCV_AV_FRAME_FREE avcodec_free_frame
-#endif
-
 #define OMX_ENCODE_PORT_IN  200
 #define OMX_ENCODE_PORT_OUT 201
 
@@ -48,8 +39,6 @@ extern "C" {
 #define MAX_NALU_SIZE (512*1024)
 
 #define CHECKED(c, v) if ((c)) throw std::invalid_argument(v)
-
-extern void BGR2RGB(const cv::Mat &src, uint8_t *dst, int stride);
 
 namespace omxcv {
     /**
