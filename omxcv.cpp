@@ -276,10 +276,10 @@ bool OmxCvImpl::write_data(OMX_BUFFERHEADERTYPE *out, int64_t timestamp) {
 	if (out->nFilledLen != 0) {
 		printf("write data : %d\n", (int)out->nFilledLen);
 		m_ofstream.write((const char*)out->pBuffer, (int)out->nFilledLen);
-		return true;
+		return false;
 	} else {
 		printf("write data : return false\n");
-		return false;
+		return true;
 	}
 }
 
