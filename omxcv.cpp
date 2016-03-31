@@ -274,7 +274,7 @@ void OmxCvImpl::input_worker() {
 bool OmxCvImpl::write_data(OMX_BUFFERHEADERTYPE *out, int64_t timestamp) {
 
 	if (out->nFilledLen != 0) {
-		m_ofstream.write(out->pBuffer, out->nFilledLen);
+		m_ofstream.write((unsigned char*)out->pBuffer, (int)out->nFilledLen);
 		return true;
 	} else {
 		return false;
