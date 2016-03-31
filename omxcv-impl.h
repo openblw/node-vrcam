@@ -12,6 +12,7 @@
 #include <chrono>
 #include <condition_variable>
 #include <utility>
+#include <fstream>
 
 #include <opencv2/opencv.hpp>
 
