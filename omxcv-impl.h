@@ -18,12 +18,6 @@
 
 //Sigh
 extern "C" {
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-#include <libavutil/opt.h>
-#include <libavutil/avutil.h>
-#include <libavutil/mathematics.h>
-#include <libavformat/avio.h>
 
 //Without the right struct packing the buffers will be screwed...
 //nFlags won't be set correctly...
@@ -69,6 +63,11 @@ namespace omxcv {
             bool process(const cv::Mat &mat);
         private:
             int m_width, m_height, m_stride, m_bitrate, m_fpsnum, m_fpsden;
+            uint8_t *m_sps, *m_pps;
+            uint16_t m_sps_length, m_pps_length;
+            uint32_t m_nalu_filled, m_nalu_required;
+            uint8_t *m_nalu_buffer;
+            bool m_initted_header;
 
             std::string m_filename;
             std::ofstream m_ofstream;
