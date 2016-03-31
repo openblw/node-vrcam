@@ -41,17 +41,18 @@ using namespace openblw;
 OmxCvJpeg encoder = OmxCvJpeg(EQUIRECTANGULAR_WIDTH,
 EQUIRECTANGULAR_HEIGHT);
 GLTransform transformer(EQUIRECTANGULAR_WIDTH, EQUIRECTANGULAR_HEIGHT,
-		CAMERA_WIDTH, CAMERA_HEIGHT);
+CAMERA_WIDTH, CAMERA_HEIGHT);
 OmxCv *recorder = NULL;
 
-int StartRecord() {
-	recorder = new OmxCv((const char*) "/tmp/movie.mov", EQUIRECTANGULAR_WIDTH,
-			EQUIRECTANGULAR_HEIGHT, 400000);
+int StartRecord(const char *filename, int bitrate_kbps) {
+	recorder = new OmxCv(filename, EQUIRECTANGULAR_WIDTH,
+			EQUIRECTANGULAR_HEIGHT, bitrate_kbps);
 	return 0;
 }
 
 int StopRecord() {
-	if(recorder == NULL) return -1;
+	if (recorder == NULL)
+		return -1;
 	delete recorder;
 	recorder = NULL;
 	return 0;
@@ -63,7 +64,8 @@ int SetRotation(float x_deg, float y_deg, float z_deg) {
 
 int AddFrame(int width, int height, int stride,
 		const unsigned char *imagedata) {
-	if(recorder == NULL) return -1;
+	if (recorder == NULL)
+		return -1;
 
 	cv::Mat raw_image(height, width, CV_8UC(stride / width));
 	cv::Mat vr_image(EQUIRECTANGULAR_HEIGHT, EQUIRECTANGULAR_WIDTH, CV_8UC(3));

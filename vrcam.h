@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-int StartRecord();
+int StartRecord(const char *filename, int bitrate_kbps);
 int StopRecord();
 int AddFrame(int width, int height, int stride,
 		const unsigned char *imagedata);
