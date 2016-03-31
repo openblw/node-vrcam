@@ -42,131 +42,6 @@ void BGR2RGB(const cv::Mat &src, uint8_t *dst, int stride) {
 }
 
 /**
- * Initialise LibAVCodec output muxer.
- * @return true iff initialised.
- */
-bool OmxCvImpl::lav_init() {
-	av_register_all();
-	av_log_set_level (AV_LOG_INFO);
-	char buf[BUFSIZ];
-
-	AVOutputFormat *fmt = av_guess_format(NULL, m_filename.c_str(), NULL);
-	if (fmt == NULL) {
-		return false;
-	}
-
-	m_mux_ctx = avformat_alloc_context();
-	if (m_mux_ctx == NULL) {
-		return false;
-	}
-	m_mux_ctx->debug = 1;
-	m_mux_ctx->start_time_realtime = time(NULL); //NOW
-	m_mux_ctx->start_time = AV_NOPTS_VALUE;
-	m_mux_ctx->oformat = fmt;
-	snprintf(m_mux_ctx->filename, sizeof(m_mux_ctx->filename), "%s",
-			m_filename.c_str());
-
-	m_video_stream = avformat_new_stream(m_mux_ctx, NULL);
-	if (m_video_stream == NULL) {
-		avformat_free_context(m_mux_ctx);
-		return false;
-	}
-	//avcodec_get_context_defaults3(m_video_stream->codec, avcodec_find_encoder(AV_CODEC_ID_H264));
-
-	snprintf(buf, sizeof(buf), "Created at %sBitrate: %d Kbps",
-			ctime((time_t*) &m_mux_ctx->start_time_realtime), m_bitrate);
-
-	av_dict_set(&m_video_stream->metadata, "encoder",
-			"omxcv " OMXCV_VERSION " " OMXCV_DATE, 0);
-	av_dict_set(&m_video_stream->metadata, "settings", buf, 0);
-	m_video_stream->codec->width = m_width;
-	m_video_stream->codec->height = m_height;
-	m_video_stream->codec->codec_id = AV_CODEC_ID_H264;
-	m_video_stream->codec->codec_type = AVMEDIA_TYPE_VIDEO;
-	m_video_stream->codec->bit_rate = m_bitrate;
-	m_video_stream->codec->time_base.num = 1;
-	m_video_stream->codec->time_base.den = 1000;
-	m_video_stream->codec->pix_fmt = AV_PIX_FMT_YUV420P;
-
-	m_video_stream->time_base.num = 1;
-	m_video_stream->time_base.den = 1000;
-
-	m_video_stream->start_time = AV_NOPTS_VALUE;
-
-	m_video_stream->codec->sample_aspect_ratio.num =
-			m_video_stream->sample_aspect_ratio.num;
-	m_video_stream->codec->sample_aspect_ratio.den =
-			m_video_stream->sample_aspect_ratio.den;
-
-	if (avio_open(&m_mux_ctx->pb, m_filename.c_str(), AVIO_FLAG_WRITE) < 0) {
-		avcodec_close(m_video_stream->codec);
-		avformat_free_context(m_mux_ctx);
-		return 0;
-	}
-
-	if (m_mux_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
-		m_video_stream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
-	}
-
-	return true;
-}
-
-/**
- * Dumps the CodecPrivate data for the Matroska/MP4 container.
- * Note this is the same format as required for MP4 containers - in other words,
- * the AVCC format (AVCDecoderConfigurationRecord structure). Some values have
- * been hard-coded for simplicity's sake.
- * @return true iff CodecPrivate (extradata) was updated.
- */
-bool OmxCvImpl::dump_codec_private() {
-	//Example CodecPrivate: 01 64 00 1e ff e1 00 0e 27 64 00 1e ac 2b 40 50 1e d0 0f 12 26 a0 01 00 05 28 ee 02 5c b0
-	//See also: http://lists.matroska.org/pipermail/matroska-devel/2012-April/004196.html
-	//And: http://stackoverflow.com/questions/24884827/possible-locations-for-sequence-picture-parameter-sets-for-h-264-stream
-	//Note: lengthSizeMinusOne is normally 3 (4 bytes to specify NALU length)
-	//But: Annex B NALU signature is either 3 or 4 bytes long.
-	//However: Luckily for us, the RPi OMX encoder appears to always return
-	//NALUs with 4 byte headers. So we're OK! If we get one with a 3 byte header
-	//then we have to increase the buffer size by 1 to accomodate the size.
-	assert(m_sps_length > 2);
-	uint8_t adcr[] = { 1, //configurationVersion
-			m_sps[1], //AVCProfileIndication
-			m_sps[2], //profile_compatibility
-			m_sps[3], //AVCLevelIndication
-			0xfc | 3, //lengthSizeMinusOne;
-			0xe0 | 1 //numOfSequenceParameterSets; 0xe0 for reserved bits. We have one SPS.
-	};
-
-	AVCodecContext *c = m_video_stream->codec;
-	av_free(c->extradata);
-
-	c->profile = m_sps[1]; //Ususally 'High' profile
-	c->level = m_sps[3]; //Usually Level 3.0
-
-	c->extradata_size = sizeof(adcr) + 2 + m_sps_length + 1 + 2 + m_pps_length;
-	c->extradata = static_cast<uint8_t*>(av_malloc(c->extradata_size));
-	if (c->extradata) {
-		memcpy(c->extradata, &adcr, sizeof(adcr));
-		c->extradata[sizeof(adcr)] = m_sps_length >> 8;
-		c->extradata[sizeof(adcr) + 1] = m_sps_length & 0xFF;
-		memcpy(c->extradata + sizeof(adcr) + 2, m_sps, m_sps_length);
-		c->extradata[sizeof(adcr) + 2 + m_sps_length] = 1; //PPS count
-		c->extradata[sizeof(adcr) + 2 + m_sps_length + 1] = m_pps_length >> 8;
-		c->extradata[sizeof(adcr) + 2 + m_sps_length + 2] = m_pps_length & 0xFF;
-		memcpy(c->extradata + sizeof(adcr) + 2 + m_sps_length + 3, m_pps,
-				m_pps_length);
-	} else {
-		perror("Extradata allocation failed");
-		return false;
-	}
-
-	//Write the file header.
-	avformat_write_header(m_mux_ctx, NULL);
-	//Print info about this format
-	av_dump_format(m_mux_ctx, 0, m_filename.c_str(), 1);
-	return true;
-}
-
-/**
  * Constructor.
  * @param [in] name The file to save to.
  * @param [in] width The video width.
@@ -190,8 +65,6 @@ OmxCvImpl::OmxCvImpl(const char *name, int width, int height, int bitrate,
 	}
 	m_fpsnum = fpsnum;
 	m_fpsden = fpsden;
-	//Initialise the scaler and output file
-	CHECKED(!lav_init(), "Failed to initialise LibAVFormat.");
 
 	//Initialise OpenMAX and the IL client.
 	CHECKED(OMX_Init() != OMX_ErrorNone, "OMX_Init failed.");
@@ -259,15 +132,15 @@ OmxCvImpl::OmxCvImpl(const char *name, int width, int height, int bitrate,
 			"OMX_SetParameter failed for setting encoder bitrate.");
 
 	if (format.eCompressionFormat == OMX_VIDEO_CodingAVC) {
-		//Set the output profile level of the encoder
-		OMX_VIDEO_PARAM_PROFILELEVELTYPE profileLevel; // OMX_IndexParamVideoProfileLevelCurrent
-		profileLevel.nSize = sizeof(OMX_VIDEO_PARAM_PROFILELEVELTYPE);
-		profileLevel.nVersion.nVersion = OMX_VERSION;
-		profileLevel.nPortIndex = OMX_ENCODE_PORT_OUT;
-		profileLevel.eProfile = OMX_VIDEO_AVCProfileMain;
-		profileLevel.eLevel = OMX_VIDEO_AVCLevel31;
-		ret = OMX_SetParameter(ILC_GET_HANDLE(m_encoder_component),
-				OMX_IndexParamVideoProfileLevelCurrent, &profileLevel);
+//		//Set the output profile level of the encoder
+//		OMX_VIDEO_PARAM_PROFILELEVELTYPE profileLevel; // OMX_IndexParamVideoProfileLevelCurrent
+//		profileLevel.nSize = sizeof(OMX_VIDEO_PARAM_PROFILELEVELTYPE);
+//		profileLevel.nVersion.nVersion = OMX_VERSION;
+//		profileLevel.nPortIndex = OMX_ENCODE_PORT_OUT;
+//		profileLevel.eProfile = OMX_VIDEO_AVCProfileMain;
+//		profileLevel.eLevel = OMX_VIDEO_AVCLevel31;
+//		ret = OMX_SetParameter(ILC_GET_HANDLE(m_encoder_component),
+//				OMX_IndexParamVideoProfileLevelCurrent, &profileLevel);
 
 		//I think this decreases the chance of NALUs being split across buffers.
 		/*
@@ -289,7 +162,8 @@ OmxCvImpl::OmxCvImpl(const char *name, int width, int height, int bitrate,
 		nal.bEnabled = OMX_TRUE;
 		ret = OMX_SetParameter(ILC_GET_HANDLE(m_encoder_component),
 				OMX_IndexParamBrcmNALSSeparate, &nal);
-		CHECKED(ret != 0, "OMX_SetParameter failed for setting separate NALUs.");
+		CHECKED(ret != 0,
+				"OMX_SetParameter failed for setting separate NALUs.");
 
 		//We want the encoder to write the NALU length instead start codes.
 		OMX_NALSTREAMFORMATTYPE nal2 = { 0 };
@@ -314,8 +188,7 @@ OmxCvImpl::OmxCvImpl(const char *name, int width, int height, int bitrate,
 			OMX_StateExecuting);
 	CHECKED(ret != 0, "ILClient failed to change encoder to executing stage.");
 
-	//Initialise NALU buffer
-	m_nalu_buffer = new uint8_t[MAX_NALU_SIZE];
+	m_ofstream.open(m_filename, std::ios::out);
 
 	//Start the worker thread for dumping the encoded data
 	m_input_worker = std::thread(&OmxCvImpl::input_worker, this);
@@ -330,12 +203,6 @@ OmxCvImpl::~OmxCvImpl() {
 	m_input_signaller.notify_one();
 	m_input_worker.join();
 
-	//Free the SPS and PPS headers.
-	delete[] m_sps;
-	delete[] m_pps;
-	//Free the NALU buffer.
-	delete[] m_nalu_buffer;
-
 	//Teardown similar to hello_encode
 	ilclient_change_component_state(m_encoder_component, OMX_StateIdle);
 	ilclient_disable_port_buffers(m_encoder_component, OMX_ENCODE_PORT_IN, NULL,
@@ -349,12 +216,6 @@ OmxCvImpl::~OmxCvImpl() {
 	COMPONENT_T *list[] = { m_encoder_component, NULL };
 	ilclient_cleanup_components(list);
 	ilclient_destroy(m_ilclient);
-
-	//Close the output file
-	av_write_trailer(m_mux_ctx);
-	avcodec_close(m_video_stream->codec);
-	avio_close(m_mux_ctx->pb);
-	avformat_free_context(m_mux_ctx);
 }
 
 /**
@@ -413,99 +274,13 @@ void OmxCvImpl::input_worker() {
  * @return true if buffer was saved.
  */
 bool OmxCvImpl::write_data(OMX_BUFFERHEADERTYPE *out, int64_t timestamp) {
-	uint8_t *buffer = out->pBuffer;
 
-	//Do we already have a partial NALU?
-	if (m_nalu_required > 0) {
-		assert((out->nFilledLen + m_nalu_filled) <= m_nalu_required);
-		memcpy(m_nalu_buffer + m_nalu_filled, out->pBuffer, out->nFilledLen);
-		m_nalu_filled += out->nFilledLen;
-
-		//Have we got a complete NALU now?
-		if (m_nalu_filled == m_nalu_required) {
-			printf("Fulfilled NALU of size %d.\n", m_nalu_filled);
-			buffer = m_nalu_buffer;
-			out->nFilledLen = m_nalu_filled;
-			m_nalu_filled = m_nalu_required = 0;
-		} else {
-			return false;
-		}
-	}
-
-	//Check for an SPS/PPS header
-	//First 4 bytes are NALU length (Big endian)
-	assert(out->nFilledLen > 4);
-	uint32_t nallength = (buffer[0] << 24) | (buffer[1] << 16)
-			| (buffer[2] << 8) | (buffer[3]);
-	if (nallength != out->nFilledLen - 4) {
-		printf(
-				"Indicated NAL length of %d is different to filled buffer size (%d)!\n",
-				nallength, out->nFilledLen);
-		assert(nallength > (out->nFilledLen - 4) && nallength <= MAX_NALU_SIZE);
-
-		m_nalu_required = nallength + 4; //Size of NALU+4 bytes for length
-		m_nalu_filled = out->nFilledLen; //How much we've got so far
-		memcpy(m_nalu_buffer, out->pBuffer, out->nFilledLen);
+	if (out->nFilledLen != 0) {
+		m_ofstream.write(out->pBuffer, out->nFilledLen);
+		return true;
+	} else {
 		return false;
 	}
-
-	uint8_t naltype = buffer[4] & 0x1f;
-	const uint8_t sig[4] = { 0x00, 0x00, 0x00, 0x01 };
-
-	if (!m_initted_header) {
-		if (naltype == 7) { //SPS
-			uint8_t *ptr = (uint8_t*) memmem(buffer, out->nFilledLen, sig, 4);
-			if (ptr) {
-				m_sps_length = (ptr - buffer) - 4;
-				m_sps = new uint8_t[m_sps_length];
-				memcpy(m_sps, buffer + 4, m_sps_length);
-
-				m_pps_length = out->nFilledLen - 8 - m_sps_length;
-				m_pps = new uint8_t[m_pps_length];
-				memcpy(m_pps, ptr + 4, m_pps_length);
-			} else {
-				m_sps_length = out->nFilledLen - 4;
-				m_sps = new uint8_t[m_sps_length];
-				//Strip the NAL header.
-				memcpy(m_sps, buffer + 4, m_sps_length);
-			}
-		} else if (naltype == 8) {
-			m_pps_length = out->nFilledLen - 4;
-			m_pps = new uint8_t[m_pps_length];
-			//Strip the NAL header.
-			memcpy(m_pps, buffer + 4, m_pps_length);
-		} else {
-			printf("Warning: Got NALU (id %d) but no SPS/PPS set received!\n",
-					naltype);
-			return true;
-		}
-
-		if (m_sps && m_pps) {
-			if (dump_codec_private()) {
-				m_initted_header = true;
-			}
-		}
-	} else if (naltype != 7 && naltype != 8) {
-		//We only reach here if we have a full NALU to write out.
-		AVPacket pkt;
-		av_init_packet(&pkt);
-		//uint8_t *ptr = (uint8_t*)memmem(buffer, out->nFilledLen, sig, 4);
-		//assert(ptr == NULL);
-
-		pkt.stream_index = m_video_stream->index;
-		pkt.pts = timestamp;
-		pkt.data = buffer;
-		pkt.size = out->nFilledLen;
-
-		//Check for IDR frames (keyframes)
-		if (naltype == 5) {
-			pkt.flags |= AV_PKT_FLAG_KEY;
-		}
-
-		av_write_frame(m_mux_ctx, &pkt);
-		return true;
-	}
-	return false;
 }
 
 /**

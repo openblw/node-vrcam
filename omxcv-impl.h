@@ -68,13 +68,10 @@ namespace omxcv {
             bool process(const cv::Mat &mat);
         private:
             int m_width, m_height, m_stride, m_bitrate, m_fpsnum, m_fpsden;
-            uint8_t *m_sps, *m_pps;
-            uint16_t m_sps_length, m_pps_length;
-            uint32_t m_nalu_filled, m_nalu_required;
-            uint8_t *m_nalu_buffer;
-            bool m_initted_header;
 
             std::string m_filename;
+            std::ofstream m_ofstream;
+
             std::condition_variable m_input_signaller;
             std::deque<std::pair<OMX_BUFFERHEADERTYPE *, int64_t>> m_input_queue;
             std::thread m_input_worker;
@@ -85,15 +82,9 @@ namespace omxcv {
             ILCLIENT_T *m_ilclient;
             COMPONENT_T *m_encoder_component;
 
-            /** Writing out stuff **/
-            AVFormatContext *m_mux_ctx;
-            AVStream *m_video_stream;
-
             std::chrono::steady_clock::time_point m_frame_start;
             int m_frame_count;
 
-            bool lav_init();
-            bool dump_codec_private();
             void input_worker();
             bool write_data(OMX_BUFFERHEADERTYPE *out, int64_t timestamp);
     };
