@@ -295,7 +295,7 @@ v8::Handle<v8::Value> Camera::StartRecord(const v8::Arguments& args) {
 	auto camera = node::ObjectWrap::Unwrap < Camera > (thisObj)->camera;
 	if (args.Length() < 2)
 		throwTypeError("argument required: filename");
-	String::AsciiValue filename(args[0]->ToString());
+	v8::String::AsciiValue filename(args[0]->ToString());
 	int bitrate = args[1]->Uint32Value();
 	::StartRecord(*filename, bitrate);
 	return scope.Close(thisObj);
@@ -359,7 +359,7 @@ v8::Handle<v8::Value> Camera::ToJpegAsEquirectangular(const v8::Arguments& args)
 	auto camera = node::ObjectWrap::Unwrap < Camera > (thisObj)->camera;
 	if (args.Length() < 1)
 		throwTypeError("argument required: filename");
-	String::AsciiValue filename(args[0]->ToString());
+	v8::String::AsciiValue filename(args[0]->ToString());
 	SaveJpegAsEquirectangular(camera->width, camera->height, camera->width * 3, camera->head.start, *filename);
 	return scope.Close(thisObj);
 }
