@@ -69,7 +69,7 @@ int Transform(int width, int height, int stride,
 
 	transformer.Transform(raw_image, vr_image);
 
-	memcpy((void*)imagedata, raw_image.data, 3 * EQUIRECTANGULAR_WIDTH * EQUIRECTANGULAR_HEIGHT);
+	memcpy((void*)imagedata, vr_image.data, 3 * EQUIRECTANGULAR_WIDTH * EQUIRECTANGULAR_HEIGHT);
 }
 
 int AddFrame(int width, int height, int stride,
