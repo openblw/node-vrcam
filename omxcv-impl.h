@@ -18,6 +18,12 @@
 
 //Sigh
 extern "C" {
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libavutil/opt.h>
+#include <libavutil/avutil.h>
+#include <libavutil/mathematics.h>
+#include <libavformat/avio.h>
 
 //Without the right struct packing the buffers will be screwed...
 //nFlags won't be set correctly...
@@ -29,6 +35,15 @@ extern "C" {
 #pragma pack()
 }
 
+//Determine what frame allocation routine to use
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)
+    #define OMXCV_AV_FRAME_ALLOC av_frame_alloc
+    #define OMXCV_AV_FRAME_FREE av_frame_free
+#else
+    #define OMXCV_AV_FRAME_ALLOC avcodec_alloc_frame
+    #define OMXCV_AV_FRAME_FREE avcodec_free_frame
+#endif
+
 #define OMX_ENCODE_PORT_IN  200
 #define OMX_ENCODE_PORT_OUT 201
 
@@ -39,6 +54,8 @@ extern "C" {
 #define MAX_NALU_SIZE (512*1024)
 
 #define CHECKED(c, v) if ((c)) throw std::invalid_argument(v)
+
+extern void BGR2RGB(const cv::Mat &src, uint8_t *dst, int stride);
 
 namespace omxcv {
     /**
@@ -52,11 +69,6 @@ namespace omxcv {
             bool process(const cv::Mat &mat);
         private:
             int m_width, m_height, m_stride, m_bitrate, m_fpsnum, m_fpsden;
-            uint8_t *m_sps, *m_pps;
-            uint16_t m_sps_length, m_pps_length;
-            uint32_t m_nalu_filled, m_nalu_required;
-            uint8_t *m_nalu_buffer;
-            bool m_initted_header;
 
             std::string m_filename;
             std::ofstream m_ofstream;
