@@ -383,7 +383,7 @@ void Camera::ToJpegAsEquirectangularCB(uv_poll_t* handle, int /*status*/, int /*
 		SaveJpegAsEquirectangular(EQUIRECTANGULAR_WIDTH, EQUIRECTANGULAR_HEIGHT, EQUIRECTANGULAR_WIDTH * 3, camera->head.start, "/tmp/_vr.jpeg");
 
 		v8::Local<v8::Value> argv[] = {
-			v8::Local<v8::Value>::New(v8::String::AsciiValue("/tmp/_vr.jpeg")),
+			v8::Local<v8::Value>::New(v8::String::New("/tmp/_vr.jpeg")),
 		};
 		data->callback->Call(thisObj, 1, argv);
 	};
