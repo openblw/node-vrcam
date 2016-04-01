@@ -25,6 +25,7 @@ private:
 	static v8::Handle<v8::Value> Stop(const v8::Arguments& args);
 	static v8::Handle<v8::Value> StartRecord(const v8::Arguments& args);
 	static v8::Handle<v8::Value> StopRecord(const v8::Arguments& args);
+	static v8::Handle<v8::Value> AddFrame(const v8::Arguments& args);
 	static v8::Handle<v8::Value> Capture(const v8::Arguments& args);
 	static v8::Handle<v8::Value> ToYUYV(const v8::Arguments& args);
 	static v8::Handle<v8::Value> ToRGB(const v8::Arguments& args);
@@ -39,6 +40,8 @@ private:
 	static v8::Local<v8::Object> Formats(camera_t* camera);
 	static void StopCB(uv_poll_t* handle, int status, int events);
 	static void CaptureCB(uv_poll_t* handle, int status, int events);
+	static void ToJpegAsEquirectangularCB(uv_poll_t* handle, int status, int events);
+	static void AddFrameCB(uv_poll_t* handle, int status, int events);
 
 	static void
 	WatchCB(uv_poll_t* handle, void (*callbackCall)(CallbackData* data));
@@ -309,14 +312,30 @@ v8::Handle<v8::Value> Camera::StopRecord(const v8::Arguments& args) {
 	return scope.Close(thisObj);
 }
 
+void Camera::AddFrameCB(uv_poll_t* handle, int /*status*/, int /*events*/) {
+	auto callCallback = [](CallbackData* data) -> void {
+		v8::HandleScope scope;
+		auto thisObj = v8::Local<v8::Object>::New(data->thisObj);
+		auto camera = node::ObjectWrap::Unwrap<Camera>(thisObj)->camera;
+		::Transform(camera->width, camera->height, camera->width * 3, camera->head.start);
+		::AddFrame(EQUIRECTANGULAR_WIDTH, EQUIRECTANGULAR_HEIGHT, EQUIRECTANGULAR_WIDTH * 3, camera->head.start);
+		v8::Local<v8::Value> argv[] = {
+			v8::Local<v8::Value>::New(v8::Boolean::New(true)),
+		};
+		data->callback->Call(thisObj, 1, argv);
+	};
+	WatchCB(handle, callCallback);
+}
+v8::Handle<v8::Value> Camera::AddFrame(const v8::Arguments& args) {
+	return Watch(args, AddFrameCB);
+}
+
 void Camera::CaptureCB(uv_poll_t* handle, int /*status*/, int /*events*/) {
 	auto callCallback = [](CallbackData* data) -> void {
 		v8::HandleScope scope;
 		auto thisObj = v8::Local<v8::Object>::New(data->thisObj);
 		auto camera = node::ObjectWrap::Unwrap<Camera>(thisObj)->camera;
 		bool captured = camera_capture(camera);
-		::Transform(camera->width, camera->height, camera->width * 3, camera->head.start);
-		::AddFrame(EQUIRECTANGULAR_WIDTH, EQUIRECTANGULAR_HEIGHT, EQUIRECTANGULAR_WIDTH * 3, camera->head.start);
 		v8::Local<v8::Value> argv[] = {
 			v8::Local<v8::Value>::New(v8::Boolean::New(captured)),
 		};
@@ -354,15 +373,24 @@ v8::Handle<v8::Value> Camera::ToRGB(const v8::Arguments& args) {
 	return scope.Close(ret);
 }
 
+void Camera::ToJpegAsEquirectangularCB(uv_poll_t* handle, int /*status*/, int /*events*/) {
+	auto callCallback = [](CallbackData* data) -> void {
+		v8::HandleScope scope;
+		auto thisObj = v8::Local<v8::Object>::New(data->thisObj);
+		auto camera = node::ObjectWrap::Unwrap<Camera>(thisObj)->camera;
+
+		::Transform(camera->width, camera->height, camera->width * 3, camera->head.start);
+		SaveJpegAsEquirectangular(EQUIRECTANGULAR_WIDTH, EQUIRECTANGULAR_HEIGHT, EQUIRECTANGULAR_WIDTH * 3, camera->head.start, "/tmp/_vr.jpeg");
+
+		v8::Local<v8::Value> argv[] = {
+			v8::Local<v8::Value>::New(v8::String::AsciiValue::New("/tmp/_vr.jpeg")),
+		};
+		data->callback->Call(thisObj, 1, argv);
+	};
+	WatchCB(handle, callCallback);
+}
 v8::Handle<v8::Value> Camera::ToJpegAsEquirectangular(const v8::Arguments& args) {
-	v8::HandleScope scope;
-	auto thisObj = args.This();
-	auto camera = node::ObjectWrap::Unwrap < Camera > (thisObj)->camera;
-	if (args.Length() < 1)
-		throwTypeError("argument required: filename");
-	v8::String::AsciiValue filename(args[0]->ToString());
-	SaveJpegAsEquirectangular(EQUIRECTANGULAR_WIDTH, EQUIRECTANGULAR_HEIGHT, EQUIRECTANGULAR_WIDTH * 3, camera->head.start, *filename);
-	return scope.Close(thisObj);
+	return Watch(args, ToJpegAsEquirectangularCB);
 }
 
 v8::Handle<v8::Value> Camera::SetRotation(const v8::Arguments& args) {
@@ -460,6 +488,7 @@ void Camera::Init(v8::Handle<v8::Object> exports) {
 	setMethod(proto, "stop", Stop);
 	setMethod(proto, "startRecord", StartRecord);
 	setMethod(proto, "stopRecord", StopRecord);
+	setMethod(proto, "addFrame", AddFrame);
 	setMethod(proto, "capture", Capture);
 	setMethod(proto, "toYUYV", ToYUYV);
 	setMethod(proto, "toRGB", ToRGB);
