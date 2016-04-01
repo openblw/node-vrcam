@@ -15,6 +15,8 @@
 #define CAMERA_DEV   "/dev/video0"
 #define CAMERA_WIDTH  1920
 #define CAMERA_HEIGHT 720
+#define EQUIRECTANGULAR_WIDTH  1024
+#define EQUIRECTANGULAR_HEIGHT 512
 #define MMAP_COUNT    2
 #define PICTURE_NUM   10
 
@@ -60,38 +62,31 @@ int SetRotation(float x_deg, float y_deg, float z_deg) {
 	transformer.SetRotation(x_deg, y_deg, z_deg);
 }
 
-int Transform(int width, int height, int stride,
+int AddFrame(int width, int height, int stride,
 		const unsigned char *imagedata) {
+	if (recorder == NULL)
+		return -1;
+
 	cv::Mat raw_image(height, width, CV_8UC(stride / width));
 	cv::Mat vr_image(EQUIRECTANGULAR_HEIGHT, EQUIRECTANGULAR_WIDTH, CV_8UC(3));
 
 	memcpy(raw_image.data, imagedata, stride * height);
 
 	transformer.Transform(raw_image, vr_image);
-
-	memcpy((void*)imagedata, vr_image.data, 3 * EQUIRECTANGULAR_WIDTH * EQUIRECTANGULAR_HEIGHT);
-}
-
-int AddFrame(int width, int height, int stride,
-		const unsigned char *imagedata) {
-	if (recorder == NULL)
-		return -1;
-
-	cv::Mat vr_image(height, width, CV_8UC(stride / width));
-
-	memcpy(vr_image.data, imagedata, stride * height);
-
 	recorder->Encode(vr_image);
 }
 
 int SaveJpegAsEquirectangular(int width, int height, int stride,
 		const unsigned char *imagedata, const char *out_filename) {
 
-	cv::Mat vr_image(height, width, CV_8UC(stride / width));
+	cv::Mat raw_image(height, width, CV_8UC(stride / width));
+	cv::Mat vr_image(EQUIRECTANGULAR_HEIGHT, EQUIRECTANGULAR_WIDTH, CV_8UC(3));
 
-	memcpy(vr_image.data, imagedata, stride * height);
+	memcpy(raw_image.data, imagedata, stride * height);
 
 	if (out_filename != NULL) {
+
+		transformer.Transform(raw_image, vr_image);
 
 		if (encoder.Encode(out_filename, vr_image)) {
 		} else {
